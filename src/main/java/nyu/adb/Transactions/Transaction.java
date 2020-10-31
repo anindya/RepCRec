@@ -1,6 +1,7 @@
 package nyu.adb.Transactions;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DataManager.DataItem;
@@ -10,7 +11,7 @@ import nyu.adb.Tick;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j @Getter @Setter
+@Slf4j @Getter @Setter @NoArgsConstructor
 public class Transaction {
     TransactionType transactionType;
     Integer startTick;

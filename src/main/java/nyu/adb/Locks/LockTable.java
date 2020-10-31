@@ -8,9 +8,11 @@ import java.util.Map;
 
 public class LockTable {
     Map<DataItem, Lock> dataItemLockTypeMap;
+    Transaction transaction;
 
-    LockTable() {
+    LockTable(Transaction txn) {
         dataItemLockTypeMap = new HashMap<>();
+        this.transaction = txn;
     }
 
     public Boolean isLocked(DataItem dataItem) {

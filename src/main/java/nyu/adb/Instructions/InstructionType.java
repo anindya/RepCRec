@@ -9,9 +9,7 @@ public enum InstructionType {
     DUMP("dump"),
     WRITE("W"),
     READ("R"),
-    BEGIN_RO("beginRO"),
-//    COMMIT("commit"),
-//    ABORT("abort"),
+    BEGIN_RO("beginRO")
     ;
 
     private final String value;

@@ -3,6 +3,7 @@ package nyu.adb;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Instructions.InstructionManager;
+import nyu.adb.Sites.SiteManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
@@ -31,12 +32,15 @@ public class Application {
                log.info("File {} open, starting execution.", inputFileName);
             }
             //Make proper calls;
-            InstructionManager instructionManager = new InstructionManager();
-            Instruction currentInstruction = instructionManager.getNextInstruction();
-            while(currentInstruction != null) {
-                currentInstruction.execute();
-                currentInstruction = instructionManager.getNextInstruction();
-            }
+
+        }
+        SiteManager siteManager = new SiteManager();
+
+        InstructionManager instructionManager = new InstructionManager();
+        Instruction currentInstruction = instructionManager.getNextInstruction();
+        while(currentInstruction != null) {
+            currentInstruction.execute(siteManager);
+            currentInstruction = instructionManager.getNextInstruction();
         }
 
     }

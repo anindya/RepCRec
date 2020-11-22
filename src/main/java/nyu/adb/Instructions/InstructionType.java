@@ -24,7 +24,6 @@ public enum InstructionType {
     }
 
     public static InstructionType getInstructionType(String value) {
-        System.out.println(value);
         return Arrays.stream(InstructionType.class.getEnumConstants())
                 .filter(e -> e.getValue().equals(value)).findFirst().orElseThrow(IllegalArgumentException::new);
     }

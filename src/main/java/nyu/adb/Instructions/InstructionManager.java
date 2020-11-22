@@ -12,8 +12,8 @@ import java.io.IOException;
 @Slf4j @NoArgsConstructor
 public class InstructionManager {
     private static final String LOG_TAG = "InstructionManager";
-    private IOUtils ioUtils = IOUtils.getInstance();
-    private TransactionManager transactionManager = TransactionManager.getInstance();
+    private final IOUtils ioUtils = IOUtils.getInstance();
+    private final TransactionManager transactionManager = TransactionManager.getInstance();
 
     public Instruction getNextInstruction() throws IOException {
         String instructionLine = ioUtils.getNextLine();
@@ -77,7 +77,7 @@ public class InstructionManager {
             }
         }
         log.info("{} Instruction : {}", LOG_TAG, nextInstruction);
-
+        //TODO update Tick
         return nextInstruction;
     }
 

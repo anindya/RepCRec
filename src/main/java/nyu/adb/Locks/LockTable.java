@@ -10,9 +10,8 @@ public class LockTable {
     Map<DataItem, Lock> dataItemLockTypeMap;
     Transaction transaction;
 
-    LockTable(Transaction txn) {
+    public LockTable() {
         dataItemLockTypeMap = new HashMap<>();
-        this.transaction = txn;
     }
 
     public Boolean isLocked(DataItem dataItem) {

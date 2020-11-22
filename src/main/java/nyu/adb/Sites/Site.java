@@ -11,6 +11,13 @@ public class Site {
     Integer lastDownTime; // when did the site go down, 0 if never. comes from Tick.getValue()
     DataManagerImpl dataManagerImpl;
 
+    public Site(Integer siteNumber) {
+        this.siteNumber = siteNumber;
+        this.status = SiteStatus.UP;
+        this.lastDownTime = 0;
+        this.dataManagerImpl = new DataManagerImpl();
+    }
+
     //DataItems
     public Boolean fail() {
 
@@ -32,5 +39,16 @@ public class Site {
 
     public Boolean addDataItem(String name, Integer value) {
         return dataManagerImpl.addDataItem(name, value);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n----------------\nSite Number : ");
+        sb.append(siteNumber);
+        sb.append("\n Variables");
+        sb.append(dataManagerImpl.toString());
+        sb.append("\n-----------------");
+        return sb.toString();
     }
 }

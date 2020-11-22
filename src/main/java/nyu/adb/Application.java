@@ -1,6 +1,8 @@
 package nyu.adb;
 
 import lombok.extern.slf4j.Slf4j;
+import nyu.adb.Instructions.Instruction;
+import nyu.adb.Instructions.InstructionManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
@@ -12,7 +14,7 @@ public class Application {
         java Application.main() <inputFile> <stdIn>
     **/
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
 
         if (args.length != 2) {
             System.out.println("Usage : java Application.main() <inputFilePath> <stdIn = 0/1>. \n" +
@@ -28,13 +30,13 @@ public class Application {
             if (IOUtils.getInstance().setAndOpenInputFile(inputFileName)) {
                log.info("File {} open, starting execution.", inputFileName);
             }
-            try {
-                ioUtils.getNextLine();
-                ioUtils.getNextLine();
-            } catch (IOException ignored) {
-
-            }
             //Make proper calls;
+            InstructionManager instructionManager = new InstructionManager();
+            Instruction currentInstruction = instructionManager.getNextInstruction();
+            while(currentInstruction != null) {
+                currentInstruction.execute();
+                currentInstruction = instructionManager.getNextInstruction();
+            }
         }
 
     }

@@ -1,6 +1,7 @@
 package nyu.adb.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -35,6 +36,9 @@ public class IOUtils {
             }
             try {
                 nextLine = this.bufferedReader.readLine();
+                while(StringUtils.isEmpty(nextLine)) {
+                    nextLine = this.bufferedReader.readLine();
+                }
             } catch (IOException e) {
                 log.error("{} : IOException, file read error {}", LOG_TAG, e.getStackTrace());
                 throw e;

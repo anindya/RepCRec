@@ -1,20 +1,22 @@
 package nyu.adb.Instructions;
 
 import lombok.Getter;
-import lombok.Setter;
-import nyu.adb.Transactions.Transaction;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import nyu.adb.Transactions.TransactionManager;
 
-@Getter @Setter
+@Getter @NoArgsConstructor
 public class Instruction {
-    Transaction transaction;
-    InstructionType instructionType;
-    String name;
-    Integer readValue;
-    Integer writeValue; //To be used only if instructionType == WRITE
 
-    public Instruction(Transaction txn, InstructionType instructionType, String name) {
-        this.transaction = txn;
+    @NonNull
+    private InstructionType instructionType;
+    public TransactionManager transactionManager = TransactionManager.getInstance();
+
+    public Instruction(InstructionType instructionType) {
         this.instructionType = instructionType;
-        this.name = name;
+    }
+
+    public ExecuteResult execute(){
+        return new ExecuteResult();
     }
 }

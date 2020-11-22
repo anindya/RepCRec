@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Slf4j @Getter @Setter @NoArgsConstructor
 public class Transaction {
+    String transactionName;
     TransactionType transactionType;
     Integer startTick;
     List<Instruction> instructionsList;
@@ -25,9 +26,9 @@ public class Transaction {
     TransactionStatus finalStatus;
     TransactionStatus currentStatus;
 
-    Transaction(TransactionType transactionType, Instruction instruction) {
+    Transaction(String transactionName, TransactionType transactionType) {
+        this.transactionName = transactionName;
         this.transactionType = transactionType;
-        this.currentInstruction = instruction;
 
         startTick = Tick.getInstance().getTime();
         currentStatus = TransactionStatus.RUNNING;

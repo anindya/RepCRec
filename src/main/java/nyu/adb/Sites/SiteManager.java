@@ -20,4 +20,13 @@ public class SiteManager {
         return true;
     }
 
+    public Site getSiteNumber(Integer siteNumber) {
+        if (siteNumber - 1 > siteList.size()) {
+
+            return null;
+        } else {
+            return siteList.get(siteNumber - 1);
+        }
+    }
+
 }

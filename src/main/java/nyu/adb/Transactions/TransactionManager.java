@@ -5,8 +5,10 @@ import nyu.adb.DeadlockManager.DFSYoungestAbort;
 import nyu.adb.DeadlockManager.DeadlockManagerImpl;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockTable;
+import nyu.adb.utils.IOUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /*
@@ -14,13 +16,13 @@ Singleton class of txnManager, to be called by instructionManager
  */
 @NoArgsConstructor
 public class TransactionManager {
-    Map<String, Transaction> transactionList;
-//  Create a queue of transactions based on the age, when a transaction comeplete remove it from the queue.
+    Map<String, Transaction> transactionList = new HashMap<>();
+//  Create a queue of transactions based on the age, when a transaction complete remove it from the queue.
 //    This is the abort queue to be used when in deadlock
 //    Stack<Transaction> transactionsAgeQueue
     private static  final TransactionManager transactionManagerInstance = new TransactionManager();
 
-    public TransactionManager getTransactionManagerInstance() {
+    public static TransactionManager getTransactionManagerInstance() {
         return transactionManagerInstance;
     }
 

@@ -37,8 +37,8 @@ public class Site {
         return sb.toString();
     }
 
-    public Boolean addDataItem(String name, Integer value) {
-        return dataManagerImpl.addDataItem(name, value);
+    public Boolean addDataItem(String name, Integer value, boolean isReplicated) {
+        return dataManagerImpl.addDataItem(name, value, isReplicated);
     }
 
     @Override

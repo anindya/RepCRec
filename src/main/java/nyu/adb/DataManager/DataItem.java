@@ -9,12 +9,14 @@ public class DataItem {
 
     public String name;
     public Integer value;
-    public Boolean isLocked;
+    public boolean isLocked;
+    public boolean isReplicated;
 //    public Site site;
 
-    public DataItem(String name, Integer value) {
+    public DataItem(String name, Integer value, boolean isReplicated) {
         this.name = name;
         this.value = value;
         this.isLocked = false;
+        this.isReplicated = isReplicated;
     }
 };

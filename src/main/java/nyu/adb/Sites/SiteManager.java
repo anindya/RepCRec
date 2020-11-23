@@ -11,6 +11,8 @@ import java.util.Map;
 @Slf4j
 public class SiteManager {
     Map<Integer, Site> siteList;
+
+    //Complete map which contains list of where the corresponding variable exists.
     Map<String, List<Site>> variableLocations;
     Boolean fail(Site s) {
         //erase locktable
@@ -48,11 +50,11 @@ public class SiteManager {
             for (int variableNumber = 1; variableNumber < constants.variables.length; variableNumber++) {
                 variableName = constants.variables[variableNumber];
                 if (variableNumber%2 == 0) {
-                    s.addDataItem(variableName, 10*variableNumber);
+                    s.addDataItem(variableName, 10*variableNumber, true);
                     addVariableSiteMapping(variableName, s);
                 } else {
                     if ((1 + variableNumber%10) == siteNumber) {
-                        s.addDataItem(variableName, 10*variableNumber);
+                        s.addDataItem(variableName, 10*variableNumber, false);
                         addVariableSiteMapping(variableName, s);
                     }
                 }

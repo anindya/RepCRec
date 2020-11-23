@@ -18,8 +18,8 @@ public class DataManagerImpl {
         dataItemMap = new LinkedHashMap<>();
         lockTable = new LockTable();
     }
-    public Boolean addDataItem(String name, Integer value) {
-        DataItem dataItem = new DataItem(name, value);
+    public Boolean addDataItem(String name, Integer value, boolean isReplicated) {
+        DataItem dataItem = new DataItem(name, value, isReplicated);
         dataItemList.add(dataItem);
         dataItemMap.put(name, dataItem);
         return true;
@@ -30,7 +30,6 @@ public class DataManagerImpl {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
         for (Map.Entry entry : dataItemMap.entrySet()) {
-
             sb.append(" ");
             sb.append(entry.getKey());
             sb.append(" = ");

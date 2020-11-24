@@ -7,8 +7,9 @@ public class ReadInstruction extends Instruction{
     private String variableName;
     private Integer readValue;
 
-    public ReadInstruction(InstructionType instructionType, Transaction txn, String variableName) {
-        super(instructionType);
+    public ReadInstruction(InstructionType instructionType, Transaction txn, String variableName,
+                           String instructionLine) {
+        super(instructionType, instructionLine);
         this.transaction = txn;
         this.variableName = variableName;
     }

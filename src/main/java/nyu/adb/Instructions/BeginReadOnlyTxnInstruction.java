@@ -9,8 +9,9 @@ public class BeginReadOnlyTxnInstruction extends Instruction{
     private final String txnNumber;
     private final TransactionType transactionType;
 
-    public BeginReadOnlyTxnInstruction(InstructionType instructionType, String txnNumber, TransactionType transactionType) {
-        super(instructionType);
+    public BeginReadOnlyTxnInstruction(InstructionType instructionType, String txnNumber, TransactionType transactionType,
+                                       String instructionLine) {
+        super(instructionType, instructionLine);
         this.txnNumber = txnNumber;
         this.transactionType = transactionType;
 

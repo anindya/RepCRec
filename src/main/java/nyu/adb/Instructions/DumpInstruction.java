@@ -9,8 +9,9 @@ import nyu.adb.Transactions.Transaction;
 public class DumpInstruction extends Instruction{
     private Transaction transaction;
 
-    public DumpInstruction(InstructionType instructionType) {
-        super(instructionType);
+    public DumpInstruction(InstructionType instructionType,
+                           String instructionLine) {
+        super(instructionType, instructionLine);
     }
 
     @Override

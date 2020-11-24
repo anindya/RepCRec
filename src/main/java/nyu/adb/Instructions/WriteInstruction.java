@@ -8,8 +8,9 @@ public class WriteInstruction extends Instruction{
     private Integer readValue;
     private Integer writeValue; //To be used only if instructionType == WRITE
 
-    public WriteInstruction(InstructionType instructionType, Transaction txn, String variableName, Integer writeValue) {
-        super(instructionType);
+    public WriteInstruction(InstructionType instructionType, Transaction txn, String variableName, Integer writeValue,
+                            String instructionLine) {
+        super(instructionType, instructionLine);
         this.transaction = txn;
         this.variableName = variableName;
         this.writeValue = writeValue;

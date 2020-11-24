@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Instructions.Instruction;
+import nyu.adb.Locks.Lock;
+import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
 
@@ -17,7 +19,7 @@ public class Transaction {
     TransactionType transactionType;
     Integer startTick;
     Map<String, ExecuteResult> instructionsList;
-    Map<String, ExecuteResult> localCache;
+    Map<String, Integer> localCache;
     Set<Integer> sitesAccessed;
     Map<String, Boolean> dirtyBit; //set if data item has been updated by the transaction.
     Map<String, LockType> locksHeld; //what are the lock-types held by the transaction.
@@ -48,12 +50,19 @@ public class Transaction {
 //    }
 
     public void newRead(ExecuteResult executeResult, String variableName, String instructionLine) {
-        localCache.put(variableName, executeResult);
+        localCache.put(variableName, executeResult.getValue());
         instructionsList.put(instructionLine, executeResult);
     }
 
     public void cacheRead(String variableName, String instructionLine, Integer val) {
         instructionsList.put(instructionLine, new ExecuteResult(0, val, Tick.getInstance().getTime(), null));
+    }
+
+    public void writeToLocalCache(String variableName, String instructionLine, Integer writeVal, ExecuteResult executeResult) {
+        dirtyBit.put(variableName, true);
+        localCache.put(variableName, writeVal);
+        instructionsList.put(instructionLine, Objects.requireNonNullElseGet(executeResult,
+                () -> new ExecuteResult(0, writeVal, Tick.getInstance().getTime(), null)));
     }
 
     Boolean abort() {

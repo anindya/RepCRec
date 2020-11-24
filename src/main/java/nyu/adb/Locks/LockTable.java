@@ -61,6 +61,8 @@ public class LockTable {
                     return false;
                 } else if (itemLocks.size() == 1 &&!itemLocks.containsKey(txn)) { //If 1 transaction has locked this item but it is not this, then too the lock cannot be acquired.
                     return false;
+                } else {
+                    isWriteLockedMap.put(dataItem, true);
                 }
             }
             itemLocks.put(txn, lockType);

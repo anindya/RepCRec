@@ -124,6 +124,40 @@ public class SiteManager {
             //When does a transaction go into blocking stage
             //if lock acquired,
         }
-        return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.LOCKED_ALREADY); //TODO Change this.
+        return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.WAITING); //TODO Change this.
+    }
+
+    public ExecuteResult writeVariableLock(String variableName, Transaction txn) {
+        if (!variableLocations.containsKey(variableName)) {
+            log.error("{} : invalid variable read, variableName = {}", LOG_TAG, variableName);
+            return null;
+        } else {
+            List<Site> siteList = variableLocations.get(variableName);
+            Collections.shuffle(siteList); //randomize access to site x.
+            List<Site> lockedSites = new ArrayList<>();
+            Boolean lockedAllUpSites = true;
+            boolean allSitesAreDown = true;
+            for (Site site : siteList) {
+                if (!sitesStatus.get(site).equals(SiteStatus.DOWN)) {
+                    allSitesAreDown = false;
+                    if (site.acquireLock(variableName, LockType.WRITE, txn).equals(LockAcquiredStatus.ACQUIRED)) {
+                        lockedSites.add(site);
+//                        Integer val = site.readDataItem(variableName);
+//                        return new ExecuteResult(site.getSiteNumber(), val, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
+                    } else {
+                        lockedAllUpSites = false;
+                    }
+                }
+            }
+            if (allSitesAreDown) {
+                return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.ALL_DOWN);
+            }
+            if (lockedAllUpSites) {
+                return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
+            } else {
+                //TODO Release locks acquired?
+                return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.WAITING);
+            }
+        }
     }
 }

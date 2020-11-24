@@ -46,7 +46,7 @@ public class DataManagerImpl {
 
     public LockAcquiredStatus acquireLock(String variableName, LockType lockType, Transaction txn) {
         DataItem dataItem = dataItemMap.get(variableName);
-        if (inRecovery.contains(dataItem.getName())) {
+        if (inRecovery.contains(dataItem.getName()) && lockType.equals(LockType.READ)) {
             return LockAcquiredStatus.IN_RECOVERY;
         } else {
             if(lockTable.lockItem(dataItem, lockType, txn)) {

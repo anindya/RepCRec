@@ -1,9 +1,11 @@
 package nyu.adb;
 
 import lombok.extern.slf4j.Slf4j;
+import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Instructions.InstructionManager;
 import nyu.adb.Sites.SiteManager;
+import nyu.adb.Transactions.TransactionManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
@@ -21,27 +23,44 @@ public class Application {
             System.out.println("Usage : java Application.main() <inputFilePath> <stdIn = 0/1>. \n" +
                                 "If stdIn = 1, put anything in inputFile.");
         }
+
+        //Get all singleton classes in main, so that garbage collector doesn't remove them at any point.
+        IOUtils ioUtils = IOUtils.getInstance();
+        SiteManager siteManager = SiteManager.getInstance();
+        TransactionManager transactionManager = TransactionManager.getInstance();
+        Tick tick = Tick.getInstance();
+
         String inputFileName = args[0];
         boolean stdIn = args[1].equals('1');
-        IOUtils ioUtils = IOUtils.getInstance();
+
         if (stdIn) {
-            IOUtils.getInstance().setStdIn(true);
+            ioUtils.setStdIn(true);
             System.out.println("Please enter input, one line at a time.");
         } else {
-            if (IOUtils.getInstance().setAndOpenInputFile(inputFileName)) {
+            if (ioUtils.setAndOpenInputFile(inputFileName)) {
                log.info("File {} open, starting execution.", inputFileName);
             }
-            //Make proper calls;
-
         }
-        SiteManager siteManager = new SiteManager();
 
+        run();
+
+
+    }
+
+    private static void run() throws IOException{
         InstructionManager instructionManager = new InstructionManager();
-        Instruction currentInstruction = instructionManager.getNextInstruction();
-        while(currentInstruction != null) {
-            currentInstruction.execute(siteManager);
-            currentInstruction = instructionManager.getNextInstruction();
-        }
+        while(true) {
+            //look at all waiting instructions and see if something can be done for them
+            //check for deadlock and clear any issues
+            //run the current instruction after everything else is done.
 
+
+            Instruction currentInstruction = instructionManager.getNextInstruction();
+            if(currentInstruction != null) {
+                currentInstruction.execute();
+            }
+
+            Tick.getInstance().increaseTick();
+        }
     }
 }

@@ -3,6 +3,9 @@ package nyu.adb.Sites;
 import lombok.Getter;
 import lombok.Setter;
 import nyu.adb.DataManager.DataManagerImpl;
+import nyu.adb.Locks.LockAcquiredStatus;
+import nyu.adb.Locks.LockType;
+import nyu.adb.Transactions.Transaction;
 
 @Getter @Setter
 public class Site {
@@ -15,7 +18,11 @@ public class Site {
         this.siteNumber = siteNumber;
         this.status = SiteStatus.UP;
         this.lastDownTime = 0;
-        this.dataManagerImpl = new DataManagerImpl();
+        this.dataManagerImpl = new DataManagerImpl(siteNumber);
+    }
+
+    public LockAcquiredStatus acquireLock(String variableName, LockType lockType, Transaction txn) {
+        return dataManagerImpl.acquireLock(variableName, lockType, txn);
     }
 
     //DataItems
@@ -39,6 +46,18 @@ public class Site {
 
     public Boolean addDataItem(String name, Integer value, boolean isReplicated) {
         return dataManagerImpl.addDataItem(name, value, isReplicated);
+    }
+
+    public Boolean updateDataItem(String name, Integer value) {
+        Boolean updateStatus = dataManagerImpl.updateDataItem(name, value);
+        if (dataManagerImpl.isRecovered()) {
+            this.status = SiteStatus.UP;
+        }
+        return updateStatus;
+    }
+
+    public Integer readDataItem(String name) {
+        return dataManagerImpl.readDataItem(name);
     }
 
     @Override

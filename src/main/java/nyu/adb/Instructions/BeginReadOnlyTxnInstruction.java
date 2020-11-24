@@ -1,6 +1,5 @@
 package nyu.adb.Instructions;
 
-import nyu.adb.Sites.SiteManager;
 import nyu.adb.Transactions.Transaction;
 import nyu.adb.Transactions.TransactionType;
 
@@ -18,8 +17,7 @@ public class BeginReadOnlyTxnInstruction extends Instruction{
     }
 
     @Override
-    public ExecuteResult execute(SiteManager siteManager) {
+    public void execute() {
         this.transaction = transactionManager.createNewTransaction(this.txnNumber, this.transactionType);
-        return new ExecuteResult();
     }
 }

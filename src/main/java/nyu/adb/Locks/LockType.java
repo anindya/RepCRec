@@ -1,16 +1,22 @@
 package nyu.adb.Locks;
 
+import lombok.Getter;
+
+import java.util.Arrays;
+
 public enum LockType {
     READ("read"),
     WRITE("write");
 
+    @Getter
     private final String value;
 
     LockType(String value) {
         this.value = value;
     }
 
-    LockType getInstructionType(String value) {
-        return LockType.valueOf(value);
+    LockType getLockType(String value) {
+        return Arrays.stream(LockType.class.getEnumConstants())
+                .filter(e -> e.getValue().equals(value)).findFirst().orElseThrow(IllegalArgumentException::new);
     }
 }

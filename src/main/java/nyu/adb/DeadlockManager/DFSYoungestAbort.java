@@ -9,6 +9,6 @@ public class DFSYoungestAbort implements DeadlockManagerImpl {
     @Override
     public DeadlockRecommendation checkDeadlock(List<LockTable> lockTableList) {
 
-        return new DeadlockRecommendation(false, new Transaction());
+        return new DeadlockRecommendation(false, new Transaction()); //TODO Update transaction to remove NoArgsConstructor.
     }
 }

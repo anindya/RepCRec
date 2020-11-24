@@ -1,15 +1,16 @@
 package nyu.adb.Instructions;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Locks.LockAcquiredStatus;
 
-@Slf4j @AllArgsConstructor @NoArgsConstructor
+@Slf4j @AllArgsConstructor @NoArgsConstructor @Getter
 public class ExecuteResult {
-    Integer siteNumber;
-    Integer value;
+    private Integer siteNumber;
+    private Integer value;
 //    DataItem dataItem;
-    Integer time;
-    LockAcquiredStatus lockAcquiredStatus;
+    private Integer time;
+    private LockAcquiredStatus lockAcquiredStatus;
 }

@@ -1,20 +1,21 @@
 package nyu.adb.Instructions;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Sites.SiteManager;
 import nyu.adb.Transactions.TransactionManager;
 
-@Getter
+@Getter @Slf4j
 public class Instruction {
 
     @NonNull
-    private InstructionType instructionType;
+    protected InstructionType instructionType;
     @NonNull
-    private String instructionLine;
+    protected String instructionLine;
 
     public TransactionManager transactionManager = TransactionManager.getInstance();
+    public SiteManager siteManager = SiteManager.getInstance();
 
     public Instruction(InstructionType instructionType,
                        String instructionLine) {
@@ -22,8 +23,7 @@ public class Instruction {
         this.instructionLine = instructionLine;
     }
 
-    public ExecuteResult execute(SiteManager s){
-        return new ExecuteResult();
+    public void execute(){
     } //TODO update.
 
     @Override

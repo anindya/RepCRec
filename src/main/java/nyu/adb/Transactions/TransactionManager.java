@@ -7,6 +7,7 @@ import nyu.adb.DeadlockManager.DeadlockManagerImpl;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockTable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,8 +66,8 @@ public class TransactionManager {
         if (transactionList.containsKey(transactionName)) {
             return transactionList.get(transactionName);
         } else {
-            return new Transaction(); //TODO create new transaction and return that transaction. Possibly wrong.
+            log.error("{} incorrect transaction name in instruction, transactionName : {}", LOG_TAG, transactionName);
+            return null; //TODO Change to error if time permits.
         }
-
     }
 }

@@ -17,7 +17,8 @@ public class BeginReadOnlyTxnInstruction extends Instruction{
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         this.transaction = transactionManager.createNewTransaction(this.txnNumber, this.transactionType);
+        return true;
     }
 }

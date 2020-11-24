@@ -2,6 +2,7 @@ package nyu.adb.Instructions;
 
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Locks.LockAcquiredStatus;
+import nyu.adb.Locks.LockType;
 import nyu.adb.Transactions.Transaction;
 import nyu.adb.Transactions.TransactionType;
 
@@ -20,7 +21,7 @@ public class ReadInstruction extends Instruction{
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         if (transaction.getTransactionType().equals(TransactionType.READ_WRITE)) {
 
             if(transaction.getLocalCache().containsKey(variableName)) {
@@ -28,21 +29,25 @@ public class ReadInstruction extends Instruction{
                 this.readValue = transaction.getLocalCache().get(variableName);
                 transaction.cacheRead(variableName, instructionLine, this.readValue);
                 System.out.format("%s Local Cache read: %d\n", instructionLine, this.readValue);
+                return true;
             } else {
                 ExecuteResult executeResult = siteManager.readVariable(variableName, transaction);
                 if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.WAITING)) {
-
+                    transactionManager.addToWaitingQ(this, variableName);
                 } else if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.IN_RECOVERY)) {
-
+                    transactionManager.addToWaitingQ(this, variableName);
                 } else if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.ACQUIRED)) {
                     this.readValue = executeResult.getValue();
                     transaction.newRead(executeResult, variableName, instructionLine);
+                    transactionManager.newLocksAcquired(transaction, variableName, LockType.READ);
                     log.info("{} read variable {} from site {} for transaction {}", LOG_TAG, variableName, executeResult.getSiteNumber(), transaction.getTransactionName());
                     System.out.format("%s read variable %s from site %d for transaction %s, value %s\n", instructionLine, variableName, executeResult.getSiteNumber(), transaction.getTransactionName(), this.readValue);
+                    return true;
                 }
             }
         } else {
-
+            //Read only reads.
         }
+        return false;
     }
 }

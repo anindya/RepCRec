@@ -1,7 +1,6 @@
 package nyu.adb;
 
 import lombok.extern.slf4j.Slf4j;
-import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Instructions.InstructionManager;
 import nyu.adb.Sites.SiteManager;
@@ -9,6 +8,8 @@ import nyu.adb.Transactions.TransactionManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Queue;
 
 @Slf4j
 public class Application {
@@ -42,25 +43,27 @@ public class Application {
             }
         }
 
-        run();
+        run(siteManager, transactionManager, tick);
 
 
     }
 
-    private static void run() throws IOException{
+    private static void run(SiteManager siteManager, TransactionManager transactionManager, Tick tick) throws IOException{
         InstructionManager instructionManager = new InstructionManager();
         while(true) {
-            //look at all waiting instructions and see if something can be done for them
             //check for deadlock and clear any issues
+
+
+            //look at all waiting instructions and see if something can be done for them
+            transactionManager.tryWaitingInstructions();
+
             //run the current instruction after everything else is done.
-
-
             Instruction currentInstruction = instructionManager.getNextInstruction();
             if(currentInstruction != null) {
                 currentInstruction.execute();
             }
 
-            Tick.getInstance().increaseTick();
+            tick.increaseTick();
         }
     }
 }

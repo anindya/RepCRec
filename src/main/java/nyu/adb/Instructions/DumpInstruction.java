@@ -13,8 +13,9 @@ public class DumpInstruction extends Instruction{
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         String dump = siteManager.getSitesDump();
         System.out.println(dump);
+        return true;
     }
 }

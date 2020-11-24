@@ -20,7 +20,7 @@ public class Transaction {
     Integer startTick;
     Map<String, ExecuteResult> instructionsList;
     Map<String, Integer> localCache;
-    Set<Integer> sitesAccessed;
+    Map<Integer, Set<String>> sitesAccessed;
     Map<String, Boolean> dirtyBit; //set if data item has been updated by the transaction.
     Map<String, LockType> locksHeld; //what are the lock-types held by the transaction.
 
@@ -52,6 +52,7 @@ public class Transaction {
     public void newRead(ExecuteResult executeResult, String variableName, String instructionLine) {
         localCache.put(variableName, executeResult.getValue());
         instructionsList.put(instructionLine, executeResult);
+        updateSiteAccessRecord(executeResult, variableName);
     }
 
     public void cacheRead(String variableName, String instructionLine, Integer val) {
@@ -63,6 +64,15 @@ public class Transaction {
         localCache.put(variableName, writeVal);
         instructionsList.put(instructionLine, Objects.requireNonNullElseGet(executeResult,
                 () -> new ExecuteResult(0, writeVal, Tick.getInstance().getTime(), null)));
+        if (executeResult != null) {
+            updateSiteAccessRecord(executeResult, variableName);
+        }
+    }
+
+    private void updateSiteAccessRecord(ExecuteResult executeResult, String variableName) {
+        Set<String> siteAccessRecord = sitesAccessed.getOrDefault(executeResult.getSiteNumber(), new HashSet<>());
+        siteAccessRecord.add(variableName);
+        sitesAccessed.put(executeResult.getSiteNumber(), siteAccessRecord);
     }
 
     Boolean abort() {

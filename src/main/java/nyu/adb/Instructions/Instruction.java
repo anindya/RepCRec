@@ -23,7 +23,8 @@ public class Instruction {
         this.instructionLine = instructionLine;
     }
 
-    public void execute(){
+    public Boolean execute(){
+        return true;
     } //TODO update.
 
     @Override

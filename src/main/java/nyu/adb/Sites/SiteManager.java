@@ -2,7 +2,6 @@ package nyu.adb.Sites;
 
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.ExecuteResult;
-import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
@@ -20,12 +19,6 @@ public class SiteManager {
 
     //Complete map which contains list of where the corresponding variable exists.
     Map<String, List<Site>> variableLocations;
-
-    //Stack of instructions waiting for variable
-    Map<String, Queue<Instruction>> instructionsWaitingForVariable;
-    //Stack of transactions waiting for variable
-    Map<String, Queue<Transaction>> txnsWaitingForVariable;
-    Map<String, List<Transaction>> lockHeldByTxn; //TODO Think more on this and its use.
 
     public static SiteManager getInstance() {
         return instance;

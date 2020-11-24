@@ -21,23 +21,26 @@ public class WriteInstruction extends Instruction{
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         if(transaction.getDirtyBit().containsKey(variableName)) {
             log.info("{} : Variable {} already locked by transaction {}, write new value: {}", LOG_TAG, variableName, transaction.getTransactionName(), writeValue);
             transaction.writeToLocalCache(variableName, instructionLine, this.writeValue, null);
             System.out.format("%s : Variable %s already locked by transaction %s, write new value: %d\n", LOG_TAG, variableName, transaction.getTransactionName(), writeValue);
+            return true;
         } else {
             ExecuteResult executeResult = siteManager.writeVariableLock(variableName, transaction);
             if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.WAITING)) {
-
+                transactionManager.addToWaitingQ(this, variableName);
             } else if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.IN_RECOVERY)) {
-
+                transactionManager.addToWaitingQ(this, variableName);
             } else if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.ACQUIRED)) {
 //                this.readValue = executeResult.getValue();
                 log.info("{} : Variable {} locked by transaction {}, write new value: {}", LOG_TAG, variableName, transaction.getTransactionName(), writeValue);
                 transaction.writeToLocalCache(variableName, instructionLine, this.writeValue, executeResult);
                 System.out.format("%s : Variable %s locked by transaction %s, write new value: %d\n", instructionLine, variableName, transaction.getTransactionName(), writeValue);
+                return true;
             }
         }
+        return false;
     }
 }

@@ -13,7 +13,7 @@ public enum TransactionStatus {
         this.value = value;
     }
 
-    TransactionStatus getInstructionType(String value) {
+    TransactionStatus getTransactionStatus(String value) {
         return TransactionStatus.valueOf(value);
     }
 }

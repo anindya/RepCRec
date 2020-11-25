@@ -57,6 +57,14 @@ public class DataManagerImpl {
         }
     }
 
+    public void unlockItemForTransaction(String variableName, Transaction txn) {
+        if (!dataItemMap.containsKey(variableName)) {
+            log.error("{} Invalid data item name : {}", LOG_TAG, variableName);
+            return ;
+        }
+        lockTable.unlockItem(dataItemMap.get(variableName), txn);
+    }
+
     public Integer readDataItem(String name) {
         return dataItemMap.get(name).getValue();
     }

@@ -29,7 +29,8 @@ public class TransactionManager {
 
     //Stack of instructions waiting for variable
     Map<String, Queue<Instruction>> instructionsWaitingForVariable;
-    //Stack of transactions waiting for variable
+    Set<Instruction> waitingInstructions;
+    //Set of transactions waiting for variable
     Map<String, Set<Transaction>> txnsWaitingForVariable;
     Map<String, Set<Transaction>> readLocksHeldByTxn; //TODO Think more on this and its use.
     Map<String, Transaction> writeLockHeldByTxn;
@@ -40,6 +41,7 @@ public class TransactionManager {
         this.txnsWaitingForVariable = new HashMap<>();
         this.readLocksHeldByTxn = new HashMap<>();
         this.writeLockHeldByTxn = new HashMap<>();
+        this.waitingInstructions = new HashSet<>();
     }
 
 
@@ -90,10 +92,14 @@ public class TransactionManager {
     }
 
     public void addToWaitingQ(Instruction instruction, String variableName) {
+        if (waitingInstructions.contains(instruction)) {
+            return;
+        }
         log.info("{} Add instruction {} to waiting Queue for variable : {}", LOG_TAG, instruction.getInstructionLine(), variableName);
         Queue<Instruction> currentWaitQ = this.instructionsWaitingForVariable.containsKey(variableName) ?
                 this.instructionsWaitingForVariable.get(variableName) : new LinkedList<>();
         currentWaitQ.add(instruction);
+        waitingInstructions.add(instruction);
         this.instructionsWaitingForVariable.put(variableName, currentWaitQ);
 //        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
     }
@@ -105,8 +111,11 @@ public class TransactionManager {
             while(entry.getValue().peek() != null) {
                 instruction = entry.getValue().peek();
                 if (instruction.execute()) {{
+                    waitingInstructions.remove(instruction);
                     entry.getValue().remove();
-                }}
+                }} else {
+                    break;
+                }
             }
         }
     }

@@ -22,7 +22,7 @@ public class WriteInstruction extends Instruction{
 
     @Override
     public Boolean execute() {
-        if(transaction.getDirtyBit().containsKey(variableName)) {
+        if(transaction.getDirtyBit().contains(variableName)) {
             log.info("{} : Variable {} already locked by transaction {}, write new value: {}", LOG_TAG, variableName, transaction.getTransactionName(), writeValue);
             transaction.writeToLocalCache(variableName, instructionLine, this.writeValue, null);
             System.out.format("%s : Variable %s already locked by transaction %s, write new value: %d\n", LOG_TAG, variableName, transaction.getTransactionName(), writeValue);

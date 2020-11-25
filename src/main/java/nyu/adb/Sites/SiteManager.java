@@ -105,7 +105,9 @@ public class SiteManager {
                     allSitesAreDown = false;
                     if (site.acquireLock(variableName, LockType.READ, txn).equals(LockAcquiredStatus.ACQUIRED)) {
                         Integer val = site.readDataItem(variableName);
-                        return new ExecuteResult(site.getSiteNumber(), val, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
+                        Map<Integer, Integer> siteNumberAndUpSince = new HashMap<>();
+                        siteNumberAndUpSince.put(site.getSiteNumber(), site.getUpSince());
+                        return new ExecuteResult(siteNumberAndUpSince, val, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
                     }
                 }
             }
@@ -146,11 +148,32 @@ public class SiteManager {
                 return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.ALL_DOWN);
             }
             if (lockedAllUpSites) {
-                return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
+                Map<Integer, Integer> siteNumberAndUpTime = new HashMap<>();
+                for(Site s: siteList) {
+                    siteNumberAndUpTime.put(s.getSiteNumber(), s.getUpSince());
+                }
+                return new ExecuteResult(siteNumberAndUpTime, null, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
             } else {
                 //TODO Release locks acquired?
                 return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.WAITING);
             }
         }
+    }
+
+    public Integer getSiteUpTime(Integer siteNumber) {
+        return getSiteFromNumber(siteNumber).getUpSince();
+    }
+
+    //Cleanup at all sites that are up and were accessed by this transaction.
+    public void cleanUpAtSites(String variableName, BitSet siteNumberSet, Integer newValue, Transaction transaction, Boolean isWrite) {
+        siteNumberSet.stream().parallel().forEach(siteNumber -> {
+            if (isUp(getSiteFromNumber(siteNumber))) {
+                if (isWrite) { //Write where needed
+                    getSiteFromNumber(siteNumber).updateDataItem(variableName, newValue);
+                }
+                //Unlock
+                getSiteFromNumber(siteNumber).unlockItemForTransaction(variableName, transaction);
+            }
+        });
     }
 }

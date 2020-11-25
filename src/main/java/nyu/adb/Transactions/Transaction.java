@@ -6,10 +6,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Instructions.Instruction;
-import nyu.adb.Locks.Lock;
-import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
+import nyu.adb.constants;
 
 import java.util.*;
 
@@ -20,8 +19,9 @@ public class Transaction {
     Integer startTick;
     Map<String, ExecuteResult> instructionsList;
     Map<String, Integer> localCache;
-    Map<Integer, Set<String>> sitesAccessed;
-    Map<String, Boolean> dirtyBit; //set if data item has been updated by the transaction.
+    Map<String, BitSet> sitesAccessedForVariable;
+    Map<Integer, Integer> siteEarliestUpTimeWhenAccessingIt;
+    Set<String> dirtyBit; //set if data item has been updated by the transaction.
     Map<String, LockType> locksHeld; //what are the lock-types held by the transaction.
 
     // Assumes only one instruction per txn at a time. If waiting, no new operation will come in
@@ -35,8 +35,9 @@ public class Transaction {
         this.transactionType = transactionType;
         this.instructionsList = new HashMap<>();
         this.localCache = new HashMap<>();
-        this.dirtyBit = new HashMap<>();
-        this.sitesAccessed = new HashSet<>();
+        this.dirtyBit = new HashSet<>();
+        this.sitesAccessedForVariable = new HashMap<>(); //TODO
+        this.siteEarliestUpTimeWhenAccessingIt = new HashMap<>();
         startTick = Tick.getInstance().getTime();
         currentStatus = TransactionStatus.RUNNING;
 
@@ -56,23 +57,32 @@ public class Transaction {
     }
 
     public void cacheRead(String variableName, String instructionLine, Integer val) {
-        instructionsList.put(instructionLine, new ExecuteResult(0, val, Tick.getInstance().getTime(), null));
+        instructionsList.put(instructionLine, new ExecuteResult(null, val, Tick.getInstance().getTime(), null));
     }
 
     public void writeToLocalCache(String variableName, String instructionLine, Integer writeVal, ExecuteResult executeResult) {
-        dirtyBit.put(variableName, true);
+        dirtyBit.add(variableName);
         localCache.put(variableName, writeVal);
         instructionsList.put(instructionLine, Objects.requireNonNullElseGet(executeResult,
-                () -> new ExecuteResult(0, writeVal, Tick.getInstance().getTime(), null)));
+                () -> new ExecuteResult(null, writeVal, Tick.getInstance().getTime(), null)));
         if (executeResult != null) {
             updateSiteAccessRecord(executeResult, variableName);
         }
     }
 
     private void updateSiteAccessRecord(ExecuteResult executeResult, String variableName) {
-        Set<String> siteAccessRecord = sitesAccessed.getOrDefault(executeResult.getSiteNumber(), new HashSet<>());
-        siteAccessRecord.add(variableName);
-        sitesAccessed.put(executeResult.getSiteNumber(), siteAccessRecord);
+        BitSet siteAccessRecord = sitesAccessedForVariable.getOrDefault(variableName, new BitSet(constants.NUM_OF_SITES+1));
+        for (Map.Entry<Integer, Integer> entry : executeResult.getSiteNumberAndUpTime().entrySet()) {
+            Integer siteNumber = entry.getKey();
+            siteAccessRecord.set(siteNumber);
+
+            //If site was already accessed, this means we already have the earliest access time in the map.
+            if (!siteEarliestUpTimeWhenAccessingIt.containsKey(siteNumber)) {
+                siteEarliestUpTimeWhenAccessingIt.put(siteNumber, entry.getValue());
+            }
+        }
+
+        sitesAccessedForVariable.put(variableName, siteAccessRecord);
     }
 
     Boolean abort() {

@@ -6,9 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Locks.LockAcquiredStatus;
 
+import java.util.Map;
+
 @Slf4j @AllArgsConstructor @NoArgsConstructor @Getter
 public class ExecuteResult {
-    private Integer siteNumber;
+    private Map<Integer, Integer> siteNumberAndUpTime;
+//    private Integer siteNumber;
     private Integer value;
 //    DataItem dataItem;
     private Integer time;

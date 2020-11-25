@@ -4,20 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DataManager.DataItem;
 import nyu.adb.Transactions.Transaction;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class LockTable {
     private static final String LOG_TAG = "LockTable";
 
-    Map<DataItem, Map<Transaction, LockType>> dataItemLockTypeMap;
-    Map<DataItem, Boolean> isWriteLockedMap;
+    Map<DataItem, Map<Transaction, BitSet>> dataItemLockTypeMap;
+    Set<DataItem> isWriteLockedMap;
     Integer siteNumber;
 
     public LockTable(Integer siteNumber) {
         dataItemLockTypeMap = new HashMap<>();
-        isWriteLockedMap = new HashMap<>();
+        isWriteLockedMap = new HashSet<>();
         this.siteNumber = siteNumber;
     }
 
@@ -27,11 +26,11 @@ public class LockTable {
 
     public Boolean isReadLockedOnly(DataItem dataItem) {
         return dataItemLockTypeMap.containsKey(dataItem) &&
-                !isWriteLockedMap.containsKey(dataItem);
+                !isWriteLockedMap.contains(dataItem);
     }
 
     public Boolean isWriteLocked(DataItem dataItem) {
-        return isWriteLockedMap.containsKey(dataItem);
+        return isWriteLockedMap.contains(dataItem);
 
     }
 
@@ -43,8 +42,8 @@ public class LockTable {
     //Returns true if granular lock is set by the transaction.
     public Boolean isLockedByTxn(DataItem dataItem, Transaction txn, LockType lockType) {
         if (dataItemLockTypeMap.containsKey((dataItem))) {
-            Map<Transaction, LockType> itemLocks = dataItemLockTypeMap.get(dataItem);
-            return itemLocks.containsKey(txn) && itemLocks.get(txn).equals(lockType);
+            Map<Transaction, BitSet> itemLocks = dataItemLockTypeMap.get(dataItem);
+            return itemLocks.containsKey(txn) && itemLocks.get(txn).get(lockType.ordinal());
         }
         return false;
     }
@@ -55,17 +54,24 @@ public class LockTable {
         if (isWriteLocked(dataItem)) {
             return false;
         } else {
-            Map<Transaction, LockType> itemLocks = dataItemLockTypeMap.getOrDefault(dataItem, new HashMap<>());
+            Map<Transaction, BitSet> itemLocks = dataItemLockTypeMap.getOrDefault(dataItem, new HashMap<>());
             if (lockType.equals(LockType.WRITE)) {
                 if (itemLocks.size() > 1) { //If more than 1 transactions have locked this item, we cannot assign write lock.
                     return false;
                 } else if (itemLocks.size() == 1 &&!itemLocks.containsKey(txn)) { //If 1 transaction has locked this item but it is not this, then too the lock cannot be acquired.
                     return false;
                 } else {
-                    isWriteLockedMap.put(dataItem, true);
+                    isWriteLockedMap.add(dataItem);
                 }
             }
-            itemLocks.put(txn, lockType);
+            BitSet currentTxnBitSet;
+            if (itemLocks.containsKey(txn)) {
+                currentTxnBitSet = itemLocks.get(txn);
+            } else {
+                currentTxnBitSet = new BitSet(LockType.values().length);
+            }
+            currentTxnBitSet.set(lockType.ordinal());
+            itemLocks.put(txn, currentTxnBitSet);
             dataItemLockTypeMap.put(dataItem, itemLocks);
             return true;
         }
@@ -73,12 +79,12 @@ public class LockTable {
 
     public Boolean unlockItem(DataItem dataItem, Transaction txn) {
         if (dataItemLockTypeMap.containsKey(dataItem)) {
-            LockType lockTypeHeldByTxn = null;
+            BitSet locksHeldByTxn = null;
             if (dataItemLockTypeMap.get(dataItem).containsKey(txn)) {
-                lockTypeHeldByTxn = dataItemLockTypeMap.get(dataItem).get(txn);
+                locksHeldByTxn = dataItemLockTypeMap.get(dataItem).get(txn);
                 dataItemLockTypeMap.get(dataItem).remove(txn);
             }
-            if (lockTypeHeldByTxn.equals(LockType.WRITE)) {
+            if (locksHeldByTxn.get(LockType.WRITE.ordinal())) {
                 isWriteLockedMap.remove(dataItem);
             }
         } else {

@@ -27,3 +27,13 @@ dependencies {
 
 
 }
+
+jar {
+    manifest {
+        attributes "Main-Class": "nyu.adb.Application"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

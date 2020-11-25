@@ -22,6 +22,7 @@ public class EndTxnInstruction extends Instruction{
 //            //commit values and clear all locks. First commit or decide if abort in case some site went down from where access was done.
 //        }
         if (this.transaction.getTransactionType().equals(TransactionType.READ_ONLY)) {
+            System.out.format("%s commits\n", this.transaction.getTransactionName());
             this.transaction.setFinalStatus(TransactionStatus.COMMIT);
             return true;
         }
@@ -35,12 +36,14 @@ public class EndTxnInstruction extends Instruction{
                 siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
                         this.transaction.getLocalCache().get(variableName), this.transaction, this.transaction.getDirtyBit().contains(variableName));
             }
+            System.out.format("%s commits.\n", this.transaction.getTransactionName());
             this.transaction.setFinalStatus(TransactionStatus.COMMIT);
         } else {
             for (String variableName : this.transaction.getLocalCache().keySet()) {
                 siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
                         this.transaction.getLocalCache().get(variableName), this.transaction, false);
             }
+            System.out.format("%s aborts.\n", this.transaction.getTransactionName());
             this.transaction.setFinalStatus(TransactionStatus.ABORT);
         }
         return true;

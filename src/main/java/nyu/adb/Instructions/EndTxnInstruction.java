@@ -54,7 +54,8 @@ public class EndTxnInstruction extends Instruction{
         for (Map.Entry<Integer, Integer> entry : siteEarliestUpTimeWhenAccessingIt.entrySet()) {
             //If the site upSinceTime changed, it means that the site failed after the txn accessed it
             //Abort transaction
-            if (!siteManager.getSiteUpTime(entry.getKey()).equals(entry.getValue())) {
+            //If the site is not up right now according to the siteManager, then too we need to abort.
+            if (! siteManager.isUp(entry.getKey()) || !siteManager.getSiteUpTime(entry.getKey()).equals(entry.getValue())) {
                 return false;
             }
         }

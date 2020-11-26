@@ -5,6 +5,7 @@ import lombok.Setter;
 import nyu.adb.DataManager.DataManagerImpl;
 import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Locks.LockType;
+import nyu.adb.Tick;
 import nyu.adb.Transactions.Transaction;
 
 @Getter @Setter
@@ -32,13 +33,17 @@ public class Site {
     }
 
     //DataItems
-    public Boolean fail() {
-
-        return true;
-    }
+//    public Boolean fail() {
+//        this.status = SiteStatus.DOWN;
+//        this.upSince = -1;
+////        dataManagerImpl.fail();
+//        return true;
+//    }
 
     public Boolean recover() {
-
+        this.status = SiteStatus.IN_RECOVERY;
+        this.upSince = Tick.getInstance().getTime();
+        this.dataManagerImpl.startRecovery();
         return true;
     }
 
@@ -56,7 +61,7 @@ public class Site {
 
     public Boolean updateDataItem(String name, Integer value) {
         Boolean updateStatus = dataManagerImpl.updateDataItem(name, value);
-        if (dataManagerImpl.isRecovered()) {
+        if (this.status.equals(SiteStatus.IN_RECOVERY) && dataManagerImpl.isRecovered()) {
             this.status = SiteStatus.UP;
         }
         return updateStatus;

@@ -26,6 +26,22 @@ public class DataManagerImpl {
         this.inRecovery = new HashSet<>();
         this.siteNumber = siteNumber;
     }
+
+//    public void fail() {
+//        log.info("{} Fail dataManager for site {} started,", LOG_TAG, siteNumber);
+//
+//    }
+
+    public void startRecovery() {
+        log.info("{} Recover dataManager for site {} started,", LOG_TAG, siteNumber);
+        this.lockTable.reset();
+        dataItemList.forEach(dataItem -> {
+            if (dataItem.isReplicated()) {
+                inRecovery.add(dataItem.getName());
+            }
+        });
+    }
+
     public Boolean addDataItem(String name, Integer value, boolean isReplicated) {
         DataItem dataItem = new DataItem(name, value, isReplicated);
         dataItemList.add(dataItem);

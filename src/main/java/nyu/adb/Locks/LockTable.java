@@ -20,6 +20,11 @@ public class LockTable {
         this.siteNumber = siteNumber;
     }
 
+    public void reset() {
+        this.dataItemLockTypeMap = new HashMap<>();
+        this.isWriteLockedMap = new HashSet<>();
+    }
+
     public Boolean isLocked(DataItem dataItem) {
         return dataItemLockTypeMap.containsKey(dataItem);
     }

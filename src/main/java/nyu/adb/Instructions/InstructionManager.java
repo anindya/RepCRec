@@ -65,10 +65,10 @@ public class InstructionManager {
                         nextInstruction = new BeginReadOnlyTxnInstruction(InstructionType.BEGIN_RO, params[0], TransactionType.READ_ONLY, instructionLine);
                         break;
                     case FAIL:
-                        nextInstruction = new FailSiteInstruction(InstructionType.FAIL, params[0], instructionLine);
+                        nextInstruction = new FailSiteInstruction(InstructionType.FAIL, Integer.valueOf(params[0]), instructionLine);
                         break;
                     case RECOVER:
-                        nextInstruction = new RecoverSiteInstruction(InstructionType.RECOVER, params[0], instructionLine);
+                        nextInstruction = new RecoverSiteInstruction(InstructionType.RECOVER, Integer.valueOf(params[0]), instructionLine);
                         break;
                     default:
                         log.error("{} : Invalid instructionType {}", LOG_TAG, instructionNameAndParams[0]);

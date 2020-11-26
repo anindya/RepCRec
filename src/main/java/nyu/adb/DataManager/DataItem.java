@@ -13,9 +13,9 @@ import java.util.List;
 @Slf4j @Getter
 public class DataItem {
 
-    public String name;
-    public Integer value;
-    public boolean isReplicated;
+    private final String name;
+    private Integer value;
+    private final boolean isReplicated;
     private List<VersionedDataItem> versionedDataItems = new ArrayList<VersionedDataItem>();
 
 //    public Site site;

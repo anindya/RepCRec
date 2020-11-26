@@ -24,19 +24,12 @@ public class SiteManager {
         return instance;
     }
 
-    Boolean fail(Site s) {
-        //erase locktable
-        return true;
+    Boolean isUp(Site site) {
+        return !sitesStatus.get(site).equals(SiteStatus.DOWN);
     }
 
-    Boolean recover(Site s) {
-
-        return true;
-    }
-
-    Boolean isUp(Site s) {
-
-        return true;
+    public Boolean isUp(Integer siteNumber) {
+        return isUp(getSiteFromNumber(siteNumber));
     }
 
     public Site getSiteFromNumber(Integer siteNumber) {
@@ -165,15 +158,38 @@ public class SiteManager {
     }
 
     //Cleanup at all sites that are up and were accessed by this transaction.
+    // This can run in parallel because for each variable a site can be hit exactly once.
+    // Consider consolidating updates for a site and sending them in a batch if time permits.
     public void cleanUpAtSites(String variableName, BitSet siteNumberSet, Integer newValue, Transaction transaction, Boolean isWrite) {
         siteNumberSet.stream().parallel().forEach(siteNumber -> {
-            if (isUp(getSiteFromNumber(siteNumber))) {
+            Site site = getSiteFromNumber(siteNumber);
+            if (isUp(site)) {
                 if (isWrite) { //Write where needed
-                    getSiteFromNumber(siteNumber).updateDataItem(variableName, newValue);
+                    site.updateDataItem(variableName, newValue);
+                    this.sitesStatus.put(site, site.getStatus()); //update siteStatus after write to maintain correct values.
                 }
                 //Unlock
                 getSiteFromNumber(siteNumber).unlockItemForTransaction(variableName, transaction);
             }
         });
+    }
+
+    public Boolean failSite(Integer siteNumber) {
+        if (!siteList.containsKey(siteNumber)) {
+            log.error("{} Invalid siteNumber {} for fail operation", LOG_TAG, siteNumber);
+            return false;
+        }
+        sitesStatus.put(getSiteFromNumber(siteNumber), SiteStatus.DOWN);
+        return true;
+    }
+
+    public Boolean startRecovery(Integer siteNumber) {
+        if (!siteList.containsKey(siteNumber)) {
+            log.error("{} Invalid siteNumber {} for recovery operation", LOG_TAG, siteNumber);
+            return false;
+        }
+        sitesStatus.put(getSiteFromNumber(siteNumber), SiteStatus.IN_RECOVERY);
+        getSiteFromNumber(siteNumber).recover();
+        return true;
     }
 }

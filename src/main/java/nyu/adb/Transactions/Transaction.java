@@ -71,6 +71,9 @@ public class Transaction {
     }
 
     private void updateSiteAccessRecord(ExecuteResult executeResult, String variableName) {
+//        if (this.transactionType.equals(TransactionType.READ_ONLY)) {
+//            return;
+//        }
         BitSet siteAccessRecord = sitesAccessedForVariable.getOrDefault(variableName, new BitSet(constants.NUM_OF_SITES+1));
         for (Map.Entry<Integer, Integer> entry : executeResult.getSiteNumberAndUpTime().entrySet()) {
             Integer siteNumber = entry.getKey();

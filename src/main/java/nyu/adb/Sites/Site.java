@@ -2,6 +2,7 @@ package nyu.adb.Sites;
 
 import lombok.Getter;
 import lombok.Setter;
+import nyu.adb.DataManager.DataItem;
 import nyu.adb.DataManager.DataManagerImpl;
 import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Locks.LockType;
@@ -69,6 +70,10 @@ public class Site {
 
     public Integer readDataItem(String name) {
         return dataManagerImpl.readDataItem(name);
+    }
+
+    public DataItem.VersionedDataItem readDataItemVersion(String name, Transaction transaction) {
+        return dataManagerImpl.readDataItemVersion(name, transaction.getStartTick());
     }
 
     @Override

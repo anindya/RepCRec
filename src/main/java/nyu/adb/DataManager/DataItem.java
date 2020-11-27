@@ -16,7 +16,7 @@ public class DataItem {
     private final String name;
     private Integer value;
     private final boolean isReplicated;
-    private List<VersionedDataItem> versionedDataItems = new ArrayList<VersionedDataItem>();
+    private final List<VersionedDataItem> versionedDataItems;
 
 //    public Site site;
 
@@ -30,30 +30,31 @@ public class DataItem {
     }
 
     @AllArgsConstructor @Getter
-    private class VersionedDataItem {
+    public class VersionedDataItem {
         private Integer value;
-        private Integer timeWritten;
+        private Integer commitTime;
     }
 
     private class VersionedDataItemComparator implements Comparator<VersionedDataItem> {
 
         public int compare (VersionedDataItem dataItem1, VersionedDataItem dataItem2) {
-            if (dataItem1.timeWritten > dataItem2.timeWritten) {
+            if (dataItem1.commitTime > dataItem2.commitTime) {
                 return 1;
-            } else if (dataItem1.timeWritten < dataItem2.timeWritten) {
+            } else if (dataItem1.commitTime < dataItem2.commitTime) {
                 return -1;
             }
             return 0;
         }
     }
 
-    public Integer getValue(Integer time) {
+    public VersionedDataItem getValue(Integer time) {
         Integer index = Collections.binarySearch(versionedDataItems, new VersionedDataItem(0, time), new VersionedDataItemComparator());
         //TODO test this for sanity.
+//        log.info("versionedDataItems {}, index {}", versionedDataItems.forEach(value -> {value.getValue().toString() + " : " + value.getCommitTime().toString()}).;, index);
         if (index < 0) {
-            return versionedDataItems.get(-1*index - 1).getValue();
+            return versionedDataItems.get(-1*index - 2);
         } else {
-            return versionedDataItems.get(index).getValue();
+            return versionedDataItems.get(index);
         }
     }
 

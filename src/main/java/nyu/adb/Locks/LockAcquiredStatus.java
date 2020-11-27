@@ -9,7 +9,8 @@ public enum LockAcquiredStatus {
     ACQUIRED("acquired"),
     LOCKED_ALREADY("locked_already"),
     ALL_DOWN("all_down"),
-    WAITING("waiting");
+    WAITING("waiting"),
+    ALL_DOWN_FOR_RO("all_down_for_ro");
 
     @Getter
     private final String value;

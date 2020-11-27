@@ -29,6 +29,8 @@ public class TransactionManager {
 
     //Stack of instructions waiting for variable
     Map<String, Queue<Instruction>> instructionsWaitingForVariable;
+    Map<String, Set<Instruction>> ROInstructionsWaitingForVariable;
+
     Set<Instruction> waitingInstructions;
     //Set of transactions waiting for variable
     Map<String, Set<Transaction>> txnsWaitingForVariable;
@@ -38,6 +40,7 @@ public class TransactionManager {
     private TransactionManager() {
         this.transactionList = new HashMap<>();
         this.instructionsWaitingForVariable = new HashMap<>();
+        this.ROInstructionsWaitingForVariable = new HashMap<>();
         this.txnsWaitingForVariable = new HashMap<>();
         this.readLocksHeldByTxn = new HashMap<>();
         this.writeLockHeldByTxn = new HashMap<>();
@@ -104,7 +107,25 @@ public class TransactionManager {
 //        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
     }
 
+    public void addToWaitingRoQ(Instruction instruction, String variableName) {
+        if (waitingInstructions.contains(instruction)) {
+            return;
+        }
+        log.info("{} Add instruction {} to waiting Read-Only Queue for variable : {}", LOG_TAG, instruction.getInstructionLine(), variableName);
+        Set<Instruction> currentWaitQ = this.ROInstructionsWaitingForVariable.containsKey(variableName) ?
+                this.ROInstructionsWaitingForVariable.get(variableName) : new HashSet<>();
+        currentWaitQ.add(instruction);
+        waitingInstructions.add(instruction);
+        this.ROInstructionsWaitingForVariable.put(variableName, currentWaitQ);
+//        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
+    }
+
     public void tryWaitingInstructions() {
+        tryReadWriteInstructions();
+        tryReadOnlyInstructions();
+    }
+
+    private void tryReadWriteInstructions() {
         for (Map.Entry<String, Queue<Instruction>> entry : this.instructionsWaitingForVariable.entrySet()) {
 //            String variableName = entry.getKey();
             Instruction instruction;
@@ -117,6 +138,20 @@ public class TransactionManager {
                     break;
                 }
             }
+        }
+    }
+
+    private void tryReadOnlyInstructions() {
+        for (Map.Entry<String, Set<Instruction>> entry : this.ROInstructionsWaitingForVariable.entrySet()) {
+//            String variableName = entry.getKey();
+            List<Instruction> removalSet = new ArrayList<>();
+            entry.getValue().forEach(instruction -> {
+                if (instruction.execute()) {
+                    waitingInstructions.remove(instruction);
+                    removalSet.add(instruction);
+                }
+            });
+            entry.getValue().removeAll(removalSet);
         }
     }
 }

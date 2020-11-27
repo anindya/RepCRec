@@ -85,6 +85,10 @@ public class DataManagerImpl {
         return dataItemMap.get(name).getValue();
     }
 
+    public DataItem.VersionedDataItem readDataItemVersion(String name, Integer time) {
+        return dataItemMap.get(name).getValue(time);
+    }
+
     public Boolean isRecovered() {
         return inRecovery.size() == 0;
     }

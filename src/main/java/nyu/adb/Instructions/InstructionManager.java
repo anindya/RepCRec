@@ -44,30 +44,41 @@ public class InstructionManager {
                 return null;
             } else {
                 String txnNumber = params[0];
+                if (transactionManager.isTerminated(txnNumber)) {
+                    log.info("{} : Transaction {} already terminated", LOG_TAG, txnNumber);
+                    return null;
+                }
                 switch (instructionType){
                     case DUMP:
                         nextInstruction = new DumpInstruction(InstructionType.DUMP, instructionLine);
                         break;
                     case END:
-                        nextInstruction = new EndTxnInstruction(InstructionType.END, transactionManager.getTransaction(params[0]), instructionLine);
+                        nextInstruction = new EndTxnInstruction(InstructionType.END, transactionManager.getTransaction(txnNumber)
+                                , instructionLine);
                         break;
                     case WRITE:
-                        nextInstruction = new WriteInstruction(InstructionType.WRITE, transactionManager.getTransaction(params[0]), params[1], Integer.valueOf(params[2]), instructionLine);
+                        nextInstruction = new WriteInstruction(InstructionType.WRITE, transactionManager.getTransaction(txnNumber),
+                                params[1], Integer.valueOf(params[2]), instructionLine);
                         break;
                     case READ:
-                        nextInstruction = new ReadInstruction(InstructionType.READ, transactionManager.getTransaction(params[0]), params[1], instructionLine);
+                        nextInstruction = new ReadInstruction(InstructionType.READ, transactionManager.getTransaction(txnNumber),
+                                params[1], instructionLine);
                         break;
                     case BEGIN:
-                        nextInstruction = new BeginTxnInstruction(InstructionType.BEGIN, params[0], TransactionType.READ_WRITE, instructionLine);
+                        nextInstruction = new BeginTxnInstruction(InstructionType.BEGIN, txnNumber,
+                                TransactionType.READ_WRITE, instructionLine);
                         break;
                     case BEGIN_RO:
-                        nextInstruction = new BeginReadOnlyTxnInstruction(InstructionType.BEGIN_RO, params[0], TransactionType.READ_ONLY, instructionLine);
+                        nextInstruction = new BeginReadOnlyTxnInstruction(InstructionType.BEGIN_RO, txnNumber,
+                                TransactionType.READ_ONLY, instructionLine);
                         break;
                     case FAIL:
-                        nextInstruction = new FailSiteInstruction(InstructionType.FAIL, Integer.valueOf(params[0]), instructionLine);
+                        nextInstruction = new FailSiteInstruction(InstructionType.FAIL,
+                                Integer.valueOf(txnNumber), instructionLine);
                         break;
                     case RECOVER:
-                        nextInstruction = new RecoverSiteInstruction(InstructionType.RECOVER, Integer.valueOf(params[0]), instructionLine);
+                        nextInstruction = new RecoverSiteInstruction(InstructionType.RECOVER,
+                                Integer.valueOf(txnNumber), instructionLine);
                         break;
                     default:
                         log.error("{} : Invalid instructionType {}", LOG_TAG, instructionNameAndParams[0]);

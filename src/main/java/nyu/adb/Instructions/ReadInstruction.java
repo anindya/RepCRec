@@ -48,7 +48,7 @@ public class ReadInstruction extends Instruction{
                 return true;
             }
             ExecuteResult executeResult = siteManager.readVariableVersion(variableName, transaction);
-            log.info("status : {}", executeResult.getLockAcquiredStatus());
+//            log.info("status : {}", executeResult.getLockAcquiredStatus());
             switch (executeResult.getLockAcquiredStatus()) {
                 case WAITING:
                 case ALL_DOWN:

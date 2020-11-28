@@ -58,6 +58,9 @@ public class Application {
 
             //run the current instruction after everything else is done.
             Instruction currentInstruction = instructionManager.getNextInstruction();
+            if (currentInstruction == null) {
+                continue;
+            }
             if (currentInstruction.getInstructionType().equals(InstructionType.CLEAN_UP)) {
                 tick.increaseTick();
                 break;
@@ -67,6 +70,10 @@ public class Application {
             }
 
             tick.increaseTick();
+        }
+
+        while (!transactionManager.tryWaitingInstructions()) {
+            log.info("Trying any remaining waiting instructions.");
         }
 
         //TODO Check waiting instructions are finished or aborted at transactionManager.

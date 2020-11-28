@@ -68,6 +68,11 @@ public class TransactionManager {
         return true;
     }
 
+    //True if terminated
+    public Boolean isTerminated(String txnName) {
+        return transactionList.containsKey(txnName) && getTransaction(txnName).getFinalStatus() != null;
+    }
+
     /*
     Creates a new transaction if instructionType is BEGIN/BEGIN_RO
     else add instruction to transaction from the map.
@@ -118,9 +123,14 @@ public class TransactionManager {
 //        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
     }
 
-    public void tryWaitingInstructions() {
+
+    //returns true if all waiting instructions have finished
+    //false if some instructions are still left
+    public Boolean tryWaitingInstructions() {
         tryReadWriteInstructions();
         tryReadOnlyInstructions();
+
+        return this.waitingInstructions.size() == 0;
     }
 
     private void tryReadWriteInstructions() {
@@ -152,4 +162,6 @@ public class TransactionManager {
             entry.getValue().removeAll(removalSet);
         }
     }
+
+
 }

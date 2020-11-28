@@ -36,7 +36,7 @@ public class IOUtils {
             }
             try {
                 nextLine = this.bufferedReader.readLine();
-                while(StringUtils.isEmpty(nextLine)) {
+                while(nextLine != null && StringUtils.isBlank(nextLine)) {
                     nextLine = this.bufferedReader.readLine();
                 }
             } catch (IOException e) {

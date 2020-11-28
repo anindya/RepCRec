@@ -71,7 +71,7 @@ public class ReadInstruction extends Instruction{
         this.readValue = executeResult.getValue();
         transaction.newRead(executeResult, variableName, instructionLine);
         transactionManager.newLocksAcquired(transaction, variableName, LockType.READ);
-        log.info("{} read variable {} from site {} for transaction {}", LOG_TAG, variableName, executeResult.getSiteNumberAndUpTime().keySet().stream().findFirst(), transaction.getTransactionName());
+        log.info("{} read variable {} from site {} for transaction {}", LOG_TAG, variableName, executeResult.getSiteNumberAndUpTime().keySet().stream().findFirst().get(), transaction.getTransactionName());
         System.out.format("%s read variable %s from site %d for transaction %s, value %s\n", instructionLine, variableName, executeResult.getSiteNumberAndUpTime().keySet().stream().findFirst().get(), transaction.getTransactionName(), this.readValue);
         return true;
     }

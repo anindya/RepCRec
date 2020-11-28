@@ -18,10 +18,9 @@ public class InstructionManager {
     public Instruction getNextInstruction() throws IOException {
         String instructionLine = ioUtils.getNextLine();
         Instruction nextInstruction = null;
-
         if (instructionLine == null) {
             log.info("{} Reached end of file", LOG_TAG);
-            //start cleanup
+            return new Instruction(InstructionType.CLEAN_UP, null);
         }
         if (StringUtils.isEmpty(instructionLine)) {
             //TODO

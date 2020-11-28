@@ -14,7 +14,8 @@ public enum InstructionType {
     READ("R"),
     BEGIN_RO("beginRO"),
     FAIL("fail"),
-    RECOVER("recover")
+    RECOVER("recover"),
+    CLEAN_UP("clean_up")
     ;
 
     private final String value;

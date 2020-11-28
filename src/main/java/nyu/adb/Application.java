@@ -9,8 +9,6 @@ import nyu.adb.Transactions.TransactionManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Queue;
 
 @Slf4j
 public class Application {
@@ -70,5 +68,7 @@ public class Application {
 
             tick.increaseTick();
         }
+
+        //TODO Check waiting instructions are finished or aborted at transactionManager.
     }
 }

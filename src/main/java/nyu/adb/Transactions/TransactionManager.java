@@ -1,6 +1,5 @@
 package nyu.adb.Transactions;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DeadlockManager.DFSYoungestAbort;
 import nyu.adb.DeadlockManager.DeadlockManagerImpl;
@@ -8,7 +7,6 @@ import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
 
-import java.io.IOException;
 import java.util.*;
 
 /*

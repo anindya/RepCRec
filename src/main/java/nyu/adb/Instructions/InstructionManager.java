@@ -70,6 +70,9 @@ public class InstructionManager {
                     case RECOVER:
                         nextInstruction = new RecoverSiteInstruction(InstructionType.RECOVER, Integer.valueOf(params[0]), instructionLine);
                         break;
+                    case EXIT:
+                        nextInstruction = new ExitTxnInstruction(InstructionType.EXIT, null, instructionLine);
+                        break;
                     default:
                         log.error("{} : Invalid instructionType {}", LOG_TAG, instructionNameAndParams[0]);
                         return null; //TODO throw error if time permits.

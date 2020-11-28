@@ -3,6 +3,7 @@ package nyu.adb;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Instructions.InstructionManager;
+import nyu.adb.Instructions.InstructionType;
 import nyu.adb.Sites.SiteManager;
 import nyu.adb.Transactions.TransactionManager;
 import nyu.adb.utils.IOUtils;
@@ -59,6 +60,9 @@ public class Application {
 
             //run the current instruction after everything else is done.
             Instruction currentInstruction = instructionManager.getNextInstruction();
+            if (currentInstruction.getInstructionType().equals(InstructionType.EXIT)) {
+                break;
+            }
             if(currentInstruction != null) {
                 currentInstruction.execute();
             }

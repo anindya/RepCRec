@@ -98,4 +98,12 @@ public class LockTable {
         }
         return true;
     }
+
+    public Map<String, Map<Transaction, BitSet>> getLocksData() {
+        Map<String, Map<Transaction, BitSet>> resultMap = new HashMap<>();
+        dataItemLockTypeMap.entrySet().parallelStream().forEach( entry -> {
+            resultMap.put(entry.getKey().getName(), Collections.unmodifiableMap(entry.getValue()));
+        });
+        return resultMap;
+    }
 }

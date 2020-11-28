@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DataManager.DataItem;
 import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Locks.LockAcquiredStatus;
+import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
 import nyu.adb.Transactions.Transaction;
@@ -243,5 +244,15 @@ public class SiteManager {
         sitesStatus.put(getSiteFromNumber(siteNumber), SiteStatus.IN_RECOVERY);
         getSiteFromNumber(siteNumber).recover();
         return true;
+    }
+
+    public List<Map<String, Map<Transaction, BitSet>>> getAllLockTables() {
+        List<Map<String, Map<Transaction, BitSet>>> lockTablesData = new ArrayList<>();
+        siteList.values().forEach(site -> {
+            if (isUp(site)) {
+                lockTablesData.add(site.getLocksData());
+            }
+        });
+        return lockTablesData;
     }
 }

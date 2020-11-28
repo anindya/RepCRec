@@ -2,10 +2,11 @@ package nyu.adb.Transactions;
 
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DeadlockManager.DFSYoungestAbort;
-import nyu.adb.DeadlockManager.DeadlockManagerImpl;
+import nyu.adb.DeadlockManager.DeadlockManager;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
+import nyu.adb.Sites.SiteManager;
 
 import java.util.*;
 
@@ -61,10 +62,10 @@ public class TransactionManager {
     public Boolean checkDeadlock() {
         //check all transactions and create a graph for checking deadlock.
         //Abort the youngest transaction.
-        DeadlockManagerImpl deadlockManagerImpl = new DFSYoungestAbort();
-
+        DeadlockManager deadlockManager = new DFSYoungestAbort();
+        List<Map<String, Map<Transaction, BitSet>>> lockTablesData = SiteManager.getInstance().getAllLockTables();
         //TODO, update this to send all locktables from all sites and handle the recommendation created by the deadlock check algorithm
-        deadlockManagerImpl.checkDeadlock(new ArrayList<LockTable>());
+        deadlockManager.checkDeadlock(lockTablesData);
         return true;
     }
 

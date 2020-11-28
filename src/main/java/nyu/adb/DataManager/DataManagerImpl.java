@@ -107,4 +107,8 @@ public class DataManagerImpl {
         sb.append("\n");
         return sb.toString();
     }
+
+    public Map<String, Map<Transaction, BitSet>> getLocksData() {
+        return lockTable.getLocksData();
+    }
 }

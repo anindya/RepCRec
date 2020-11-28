@@ -9,6 +9,9 @@ import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
 import nyu.adb.Transactions.Transaction;
 
+import java.util.BitSet;
+import java.util.Map;
+
 @Getter @Setter
 public class Site {
     private Integer siteNumber;
@@ -85,5 +88,9 @@ public class Site {
         sb.append(dataManagerImpl.toString());
         sb.append("\n-----------------");
         return sb.toString();
+    }
+
+    public Map<String, Map<Transaction, BitSet>> getLocksData() {
+        return dataManagerImpl.getLocksData();
     }
 }

@@ -8,6 +8,7 @@ import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
 import nyu.adb.Transactions.Transaction;
+import nyu.adb.Transactions.TransactionStatus;
 import nyu.adb.constants;
 
 import java.util.*;
@@ -98,7 +99,7 @@ public class SiteManager {
             Collections.shuffle(siteList); //randomize access to site x.
             boolean allSitesAreDown = true;
             for (Site site : siteList) {
-                if (!sitesStatus.get(site).equals(SiteStatus.DOWN)) {
+                if ( isUp(site)) {
                     allSitesAreDown = false;
                     if (site.acquireLock(variableName, LockType.READ, txn).equals(LockAcquiredStatus.ACQUIRED)) {
                         Integer val = site.readDataItem(variableName);
@@ -125,7 +126,6 @@ public class SiteManager {
             return null;
         } else {
             List<Site> siteList = variableLocations.get(variableName);
-            Collections.shuffle(siteList); //randomize access to site x.
             List<Site> lockedSites = new ArrayList<>();
             Boolean lockedAllUpSites = true;
             Boolean allSitesAreDown = true;
@@ -137,6 +137,7 @@ public class SiteManager {
 //                        Integer val = site.readDataItem(variableName);
 //                        return new ExecuteResult(site.getSiteNumber(), val, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
                     } else {
+                        log.error("{} Could not get lock for {} from site {}", LOG_TAG, variableName, site.getSiteNumber());
                         lockedAllUpSites = false;
                     }
                 }
@@ -146,7 +147,8 @@ public class SiteManager {
             }
             if (lockedAllUpSites) {
                 Map<Integer, Integer> siteNumberAndUpTime = new HashMap<>();
-                for(Site s: siteList) {
+                for(Site s: lockedSites) {
+//                    log.error("s : {},  variable : {}", s, variableName);
                     siteNumberAndUpTime.put(s.getSiteNumber(), s.getUpSince());
                 }
                 return new ExecuteResult(siteNumberAndUpTime, null, Tick.getInstance().getTime(), LockAcquiredStatus.ACQUIRED);
@@ -160,8 +162,8 @@ public class SiteManager {
     public ExecuteResult readVariableVersion(String variableName, Transaction transaction) {
         List<Site> siteList = variableLocations.get(variableName);
 
-        Boolean allSitesAreDown = true;
-        Boolean someSitesDown = false;
+        boolean allSitesAreDown = true;
+        boolean someSitesDown = false;
         Map<Integer, Integer> siteNumberAndUpTime = new HashMap<>();
         for (Site site : siteList) {
             if (!sitesStatus.get(site).equals(SiteStatus.DOWN)) {
@@ -210,7 +212,7 @@ public class SiteManager {
     // This can run in parallel because for each variable a site can be hit exactly once.
     // Consider consolidating updates for a site and sending them in a batch if time permits.
     public void cleanUpAtSites(String variableName, BitSet siteNumberSet, Integer newValue, Transaction transaction, Boolean isWrite) {
-        siteNumberSet.stream().parallel().forEach(siteNumber -> {
+        siteNumberSet.stream().forEach(siteNumber -> {
             Site site = getSiteFromNumber(siteNumber);
             if (isUp(site)) {
                 if (isWrite) { //Write where needed
@@ -221,6 +223,15 @@ public class SiteManager {
                 site.unlockItemForTransaction(variableName, transaction);
             }
         });
+    }
+
+    public void cleanUpAtSitesAbort(Transaction transaction) {
+        for (String variableName : transaction.getLocalCache().keySet()) {
+            cleanUpAtSites(variableName, transaction.getSitesAccessedForVariable().get(variableName),
+                    transaction.getLocalCache().get(variableName), transaction, false);
+        }
+        System.out.format("%s aborts.\n", transaction.getTransactionName());
+        transaction.setFinalStatus(TransactionStatus.ABORT);
     }
 
     public Boolean failSite(Integer siteNumber) {

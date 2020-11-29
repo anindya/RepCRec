@@ -39,12 +39,13 @@ public class EndTxnInstruction extends Instruction{
             System.out.format("%s commits.\n", this.transaction.getTransactionName());
             this.transaction.setFinalStatus(TransactionStatus.COMMIT);
         } else {
-            for (String variableName : this.transaction.getLocalCache().keySet()) {
-                siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
-                        this.transaction.getLocalCache().get(variableName), this.transaction, false);
-            }
-            System.out.format("%s aborts.\n", this.transaction.getTransactionName());
-            this.transaction.setFinalStatus(TransactionStatus.ABORT);
+            siteManager.cleanUpAtSitesAbort(this.transaction);
+//            for (String variableName : this.transaction.getLocalCache().keySet()) {
+//                siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
+//                        this.transaction.getLocalCache().get(variableName), this.transaction, false);
+//            }
+//            System.out.format("%s aborts.\n", this.transaction.getTransactionName());
+//            this.transaction.setFinalStatus(TransactionStatus.ABORT);
         }
         return true;
     }

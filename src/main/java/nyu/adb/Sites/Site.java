@@ -82,11 +82,12 @@ public class Site {
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\n----------------\nSite Number : ");
+        sb.append("----------------------------------------------------------------------------------------------------------------" +
+                "------------------------------------------------\nSite #");
         sb.append(siteNumber);
-        sb.append("\n Variables");
+        sb.append(", Data : ");
         sb.append(dataManagerImpl.toString());
-        sb.append("\n-----------------");
+        sb.append("\n");
         return sb.toString();
     }
 

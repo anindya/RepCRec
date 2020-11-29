@@ -25,6 +25,8 @@ dependencies {
 
     compile 'org.apache.commons:commons-lang3:3.11'
 
+    // https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.5.0'
 
 }
 

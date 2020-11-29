@@ -7,7 +7,6 @@ import nyu.adb.Transactions.Transaction;
 @Slf4j
 public class WriteInstruction extends Instruction{
     private static final String LOG_TAG = "WriteInstruction";
-    private Transaction transaction;
     private String variableName;
 //    private Integer readValue;
     private Integer writeValue; //To be used only if instructionType == WRITE

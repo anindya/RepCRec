@@ -1,8 +1,10 @@
 package nyu.adb.Transactions;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DeadlockManager.DFSYoungestAbort;
 import nyu.adb.DeadlockManager.DeadlockManager;
+import nyu.adb.DeadlockManager.DeadlockRecommendation;
 import nyu.adb.Instructions.Instruction;
 import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
@@ -13,7 +15,7 @@ import java.util.*;
 /*
 Singleton class of txnManager, to be called by instructionManager
  */
-@Slf4j
+@Slf4j @Getter
 public class TransactionManager {
     private static final String LOG_TAG = "TransactionManager";
     Map<String, Transaction> transactionList = new HashMap<>();
@@ -59,14 +61,23 @@ public class TransactionManager {
         }
     }
 
-    public Boolean checkDeadlock() {
+    public Boolean checkAndAbortIfDeadlock() {
         //check all transactions and create a graph for checking deadlock.
         //Abort the youngest transaction.
+        SiteManager siteManager = SiteManager.getInstance();
         DeadlockManager deadlockManager = new DFSYoungestAbort();
-        List<Map<String, Map<Transaction, BitSet>>> lockTablesData = SiteManager.getInstance().getAllLockTables();
-        //TODO, update this to send all locktables from all sites and handle the recommendation created by the deadlock check algorithm
-        deadlockManager.checkDeadlock(lockTablesData);
-        return true;
+        List<Map<String, Map<Transaction, BitSet>>> lockTablesData = siteManager.getAllLockTables();
+
+        DeadlockRecommendation deadlockRecommendation = deadlockManager.checkDeadlock(lockTablesData, instructionsWaitingForVariable);
+        if (deadlockRecommendation.getIsDeadlock()) {
+            log.info("{} Found deadlock, aborting : {}", LOG_TAG, deadlockRecommendation.getTxnToKill());
+            System.out.format("Found deadlock, aborting transaction : %s\n", deadlockRecommendation.getTxnToKill());
+            Transaction txnToKill = transactionList.get(deadlockRecommendation.getTxnToKill());
+            siteManager.cleanUpAtSitesAbort(txnToKill);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //True if terminated
@@ -108,7 +119,7 @@ public class TransactionManager {
         currentWaitQ.add(instruction);
         waitingInstructions.add(instruction);
         this.instructionsWaitingForVariable.put(variableName, currentWaitQ);
-//        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
+//        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariableSet, might be useful
     }
 
     public void addToWaitingRoQ(Instruction instruction, String variableName) {
@@ -140,7 +151,8 @@ public class TransactionManager {
             Instruction instruction;
             while(entry.getValue().peek() != null) {
                 instruction = entry.getValue().peek();
-                if (instruction.execute()) {{
+                log.error("Trying {} ", instruction.getInstructionLine());
+                if (instruction.getTransaction().getFinalStatus() != null || instruction.execute()) {{
                     waitingInstructions.remove(instruction);
                     entry.getValue().remove();
                 }} else {

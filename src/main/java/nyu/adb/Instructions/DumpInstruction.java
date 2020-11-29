@@ -1,11 +1,9 @@
 package nyu.adb.Instructions;
 
 import lombok.extern.slf4j.Slf4j;
-import nyu.adb.Transactions.Transaction;
 
 @Slf4j
 public class DumpInstruction extends Instruction{
-    private Transaction transaction;
 
     public DumpInstruction(InstructionType instructionType,
                            String instructionLine) {

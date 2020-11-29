@@ -1,7 +1,6 @@
 package nyu.adb.Transactions;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Instructions.ExecuteResult;
@@ -12,7 +11,7 @@ import nyu.adb.constants;
 
 import java.util.*;
 
-@Slf4j @Getter @Setter @NoArgsConstructor
+@Slf4j @Getter @Setter
 public class Transaction {
     String transactionName;
     TransactionType transactionType;
@@ -78,7 +77,7 @@ public class Transaction {
         for (Map.Entry<Integer, Integer> entry : executeResult.getSiteNumberAndUpTime().entrySet()) {
             Integer siteNumber = entry.getKey();
             siteAccessRecord.set(siteNumber);
-
+            log.error("Site locked : {}, variable : {}", siteNumber, variableName);
             //If site was already accessed, this means we already have the earliest access time in the map.
             if (!siteEarliestUpTimeWhenAccessingIt.containsKey(siteNumber)) {
                 siteEarliestUpTimeWhenAccessingIt.put(siteNumber, entry.getValue());

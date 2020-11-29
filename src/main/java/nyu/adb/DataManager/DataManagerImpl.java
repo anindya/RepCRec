@@ -96,7 +96,6 @@ public class DataManagerImpl {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n");
         for (Map.Entry<String, DataItem> entry : dataItemMap.entrySet()) {
             sb.append(" ");
             sb.append(entry.getKey());
@@ -104,7 +103,6 @@ public class DataManagerImpl {
             sb.append((entry.getValue()).getValue());
             sb.append(", ");
         }
-        sb.append("\n");
         return sb.toString();
     }
 

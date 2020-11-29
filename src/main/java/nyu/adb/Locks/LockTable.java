@@ -10,6 +10,8 @@ import java.util.*;
 public class LockTable {
     private static final String LOG_TAG = "LockTable";
 
+    //If ordinal 1 in bitset is set, => write locked
+    // ordinal 0 => read locked.
     Map<DataItem, Map<Transaction, BitSet>> dataItemLockTypeMap;
     Set<DataItem> isWriteLockedMap;
     Integer siteNumber;
@@ -57,7 +59,7 @@ public class LockTable {
     //Assumes that the call will only come here once the lock is assignable.
     public Boolean lockItem(DataItem dataItem, LockType lockType, Transaction txn) {
         if (isWriteLocked(dataItem)) {
-            return false;
+            return isLockedByTxn(dataItem, txn, LockType.WRITE);
         } else {
             Map<Transaction, BitSet> itemLocks = dataItemLockTypeMap.getOrDefault(dataItem, new HashMap<>());
             if (lockType.equals(LockType.WRITE)) {
@@ -84,14 +86,17 @@ public class LockTable {
 
     public Boolean unlockItem(DataItem dataItem, Transaction txn) {
         if (dataItemLockTypeMap.containsKey(dataItem)) {
-            BitSet locksHeldByTxn = null;
             if (dataItemLockTypeMap.get(dataItem).containsKey(txn)) {
-                locksHeldByTxn = dataItemLockTypeMap.get(dataItem).get(txn);
-                dataItemLockTypeMap.get(dataItem).remove(txn);
+                //check if current lock is write type
+                if (dataItemLockTypeMap.get(dataItem).get(txn).get(LockType.WRITE.ordinal())) {
+                    isWriteLockedMap.remove(dataItem);
+                }
+                log.info("Unlock variable : {}, txb : {}", dataItem.getName(), txn.getTransactionName());
+                Map<Transaction, BitSet> lockMap = dataItemLockTypeMap.get(dataItem);
+                lockMap.remove(txn);
+                dataItemLockTypeMap.put(dataItem, lockMap);
             }
-            if (locksHeldByTxn.get(LockType.WRITE.ordinal())) {
-                isWriteLockedMap.remove(dataItem);
-            }
+
         } else {
             log.info("{} : Item not locked at this site, dataitem : {}", LOG_TAG, dataItem);
 

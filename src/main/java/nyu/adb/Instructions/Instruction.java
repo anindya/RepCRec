@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Sites.SiteManager;
+import nyu.adb.Transactions.Transaction;
 import nyu.adb.Transactions.TransactionManager;
 
 @Getter @Slf4j
@@ -13,6 +14,8 @@ public class Instruction {
     protected InstructionType instructionType;
     @NonNull
     protected String instructionLine;
+
+    protected Transaction transaction;
 
     public TransactionManager transactionManager = TransactionManager.getInstance();
     public SiteManager siteManager = SiteManager.getInstance();

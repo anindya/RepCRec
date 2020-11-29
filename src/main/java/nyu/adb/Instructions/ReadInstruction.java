@@ -10,7 +10,6 @@ import nyu.adb.Transactions.TransactionType;
 @Slf4j
 public class ReadInstruction extends Instruction{
     private static final String LOG_TAG = "ReadInstruction";
-    private final Transaction transaction;
     private final String variableName;
     private Integer readValue;
 

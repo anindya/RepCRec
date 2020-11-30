@@ -2,6 +2,11 @@ package nyu.adb.Instructions;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Handles recover instructions from the input.
+ * Execution starts the recovery of the given site.
+ * Follows format : recover(<sitaName>)
+ */
 @Slf4j
 public class RecoverSiteInstruction extends Instruction{
     private final Integer siteNumber;

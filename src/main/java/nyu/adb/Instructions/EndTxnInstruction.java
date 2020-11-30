@@ -6,6 +6,12 @@ import nyu.adb.Transactions.TransactionType;
 
 import java.util.Map;
 
+/**
+ * Class to handle end instruction from the input.
+ * Execution ends a transaction.
+ * Right now, it assumes that no other waiting command would exist when end transaction comes in.
+ * Follows format end(<Transaction Name>)
+ */
 public class EndTxnInstruction extends Instruction{
     private final Transaction transaction;
 

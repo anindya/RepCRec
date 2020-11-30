@@ -7,6 +7,10 @@ import nyu.adb.Sites.SiteManager;
 import nyu.adb.Transactions.Transaction;
 import nyu.adb.Transactions.TransactionManager;
 
+/**
+ * Base class for instructions which contains an abstraction of values used by other instruction types.
+ * The individual values of instructions remain private to them for most cases.
+ */
 @Getter @Slf4j
 public class Instruction {
 

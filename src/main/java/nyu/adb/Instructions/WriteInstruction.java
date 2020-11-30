@@ -4,6 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Locks.LockAcquiredStatus;
 import nyu.adb.Transactions.Transaction;
 
+/**
+ * Class to handle write instruction from the input
+ * Follows format W(<Transaction name> , <variableName>, <writeValue>)
+ */
 @Slf4j
 public class WriteInstruction extends Instruction{
     private static final String LOG_TAG = "WriteInstruction";

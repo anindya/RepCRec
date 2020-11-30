@@ -5,6 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
+/**
+ * The types of instructions supported by the system
+ * CLEAN_UP is an internal type used to denote EOF has come.
+ */
 @Slf4j @Getter
 public enum InstructionType {
     BEGIN("begin"),

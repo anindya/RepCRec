@@ -2,11 +2,13 @@ package nyu.adb.Instructions;
 
 import lombok.extern.slf4j.Slf4j;
 import nyu.adb.Locks.LockAcquiredStatus;
-import nyu.adb.Locks.LockType;
 import nyu.adb.Transactions.Transaction;
 import nyu.adb.Transactions.TransactionStatus;
 import nyu.adb.Transactions.TransactionType;
 
+/**
+ *
+ */
 @Slf4j
 public class ReadInstruction extends Instruction{
     private static final String LOG_TAG = "ReadInstruction";
@@ -41,7 +43,6 @@ public class ReadInstruction extends Instruction{
             }
         } else {
             //Read only reads.
-            //TODO Check this for sanity.
             if (transaction.getFinalStatus() != null && transaction.getFinalStatus().equals(TransactionStatus.ABORT)) {
                 log.info("{} Read-only transaction {} already aborted", LOG_TAG, transaction.getTransactionName());
                 return true;
@@ -66,10 +67,15 @@ public class ReadInstruction extends Instruction{
         return false;
     }
 
+    /**
+     * Used to update the transactions' local cache of variable and list of sites the transaction has accessed for a given variable.
+     * @param executeResult : RESULT of read execution
+     * @return will always return true. Assumes the transactionManager never fails.
+     */
     private Boolean newRead(ExecuteResult executeResult) {
         this.readValue = executeResult.getValue();
         transaction.newRead(executeResult, variableName, instructionLine);
-        transactionManager.newLocksAcquired(transaction, variableName, LockType.READ);
+//        transactionManager.newLocksAcquired(transaction, variableName, LockType.READ);
         log.info("{} read variable {} from site {} for transaction {}", LOG_TAG, variableName, executeResult.getSiteNumberAndUpTime().keySet().stream().findFirst().get(), transaction.getTransactionName());
         System.out.format("%s read variable %s from site %d for transaction %s, value %s\n", instructionLine, variableName, executeResult.getSiteNumberAndUpTime().keySet().stream().findFirst().get(), transaction.getTransactionName(), this.readValue);
         return true;

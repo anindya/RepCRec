@@ -48,13 +48,13 @@ public class Application {
 //        PrintStream originalErr = System.err;
         System.setOut(fileOut);
 //        System.setErr(fileOut);
-        run(siteManager, transactionManager, tick);
+        run(transactionManager, tick);
 
         System.setOut(originalOut);
         fileOut.close();
     }
 
-    private static void run(SiteManager siteManager, TransactionManager transactionManager, Tick tick) throws IOException{
+    private static void run(TransactionManager transactionManager, Tick tick) throws IOException{
         InstructionManager instructionManager = new InstructionManager();
         while(true) {
             //check for deadlock and clear any issues

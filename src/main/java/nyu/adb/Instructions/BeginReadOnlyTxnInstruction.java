@@ -2,6 +2,10 @@ package nyu.adb.Instructions;
 
 import nyu.adb.Transactions.TransactionType;
 
+/**
+ * Class to handle beginRO instruction from the input. execution creates a new readonly transaction.
+ * Follows format beginRO(<Transaction name>)
+ */
 public class BeginReadOnlyTxnInstruction extends Instruction{
 
     private final String txnNumber;

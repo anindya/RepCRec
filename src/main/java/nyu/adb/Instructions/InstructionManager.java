@@ -9,12 +9,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
+/**
+ * Class to get and parse instruction from IO file.
+ */
 @Slf4j @NoArgsConstructor
 public class InstructionManager {
     private static final String LOG_TAG = "InstructionManager";
     private final IOUtils ioUtils = IOUtils.getInstance();
     private final TransactionManager transactionManager = TransactionManager.getInstance();
 
+    /**
+     * Gets next line from IOUtil and creates the right Instruction based on the first keyword before "("
+     * Assumes that the input files are clean and do not any input validation.
+     * @return Instruction parsed from the input line read by IOUtils from input file
+     * @throws IOException if file is not open or not found.
+     */
     public Instruction getNextInstruction() throws IOException {
         String instructionLine = ioUtils.getNextLine();
         Instruction nextInstruction = null;

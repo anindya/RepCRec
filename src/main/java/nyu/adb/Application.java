@@ -9,6 +9,7 @@ import nyu.adb.Transactions.TransactionManager;
 import nyu.adb.utils.IOUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 @Slf4j
 public class Application {
@@ -19,9 +20,10 @@ public class Application {
 
     public static void main(String[] args) throws IOException{
 
-        if (args.length != 2) {
-            System.out.println("Usage : java Application.main() <inputFilePath> <stdIn = 0/1>. \n" +
+        if (args.length != 3) {
+            System.out.println("Usage : java Application.main() <inputFilePath> <stdIn = 0/1> <out-file>. \n" +
                                 "If stdIn = 1, put anything in inputFile.");
+            return;
         }
 
         //Get all singleton classes in main, so that garbage collector doesn't remove them at any point.
@@ -32,7 +34,7 @@ public class Application {
 
         String inputFileName = args[0];
         boolean stdIn = args[1].equals('1');
-
+        String outputFile = args[2];
         if (stdIn) {
             ioUtils.setStdIn(true);
             System.out.println("Please enter input, one line at a time.");
@@ -41,10 +43,15 @@ public class Application {
                log.info("File {} open, starting execution.", inputFileName);
             }
         }
-
+        PrintStream fileOut = new PrintStream(outputFile);
+        PrintStream originalOut = System.out;
+//        PrintStream originalErr = System.err;
+        System.setOut(fileOut);
+//        System.setErr(fileOut);
         run(siteManager, transactionManager, tick);
 
-
+        System.setOut(originalOut);
+        fileOut.close();
     }
 
     private static void run(SiteManager siteManager, TransactionManager transactionManager, Tick tick) throws IOException{

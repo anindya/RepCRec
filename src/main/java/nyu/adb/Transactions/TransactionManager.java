@@ -10,13 +10,14 @@ import nyu.adb.Sites.SiteManager;
 
 import java.util.*;
 
-/*
-Singleton class of txnManager, to be called by instructionManager
+/**
+ * Singleton class of txnManager, to be called by instructionManager
+ * Central proxy to talk to transactions, manage deadlocks, retry waiting instructions.
  */
 @Slf4j @Getter
 public class TransactionManager {
     private static final String LOG_TAG = "TransactionManager";
-    Map<String, Transaction> transactionList = new HashMap<>();
+    Map<String, Transaction> transactionList;
     private static  final TransactionManager transactionManagerInstance = new TransactionManager();
 
     public static TransactionManager getInstance() {
@@ -39,7 +40,13 @@ public class TransactionManager {
         this.waitingInstructions = new HashSet<>();
     }
 
-
+    /**
+     * Creates a new transactions and adds it to transactionList.
+     * Called after begin/beginRO input command
+     * @param transactionName the name of new transaction
+     * @param transactionType
+     * @return the new Transaction object created
+     */
     public Transaction createNewTransaction(String transactionName, TransactionType transactionType) {
         if (transactionList.containsKey(transactionName)) {
             log.error("{} transactionName already exists {}, details of existing transaction: {}",
@@ -52,6 +59,11 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * deadlock check and abort based on Youngest Abort technique
+     * @return true if a deadlock was found
+     *         false otherwise
+     */
     public Boolean checkAndAbortIfDeadlock() {
         //check all transactions and create a graph for checking deadlock.
         //Abort the youngest transaction.
@@ -76,9 +88,10 @@ public class TransactionManager {
         return transactionList.containsKey(txnName) && getTransaction(txnName).getFinalStatus() != null;
     }
 
-    /*
-    Creates a new transaction if instructionType is BEGIN/BEGIN_RO
-    else add instruction to transaction from the map.
+    /**
+     * Finds a transaction from the transactionManager List based on transaction name
+     * @param transactionName
+     * @return null if transaction with name not found, else returns corresponding transaction object
      */
     public Transaction getTransaction(String transactionName) {
         if (transactionList.containsKey(transactionName)) {
@@ -89,6 +102,11 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Adds instruction of a READ_WRITE type transaction to waiting queue
+     * @param instruction Instruction to add to the queue
+     * @param variableName variable for which the instruction is responsible
+     */
     public void addToWaitingQ(Instruction instruction, String variableName) {
         if (waitingInstructions.contains(instruction)) {
             return;
@@ -99,9 +117,13 @@ public class TransactionManager {
         currentWaitQ.add(instruction);
         waitingInstructions.add(instruction);
         this.instructionsWaitingForVariable.put(variableName, currentWaitQ);
-//        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariableSet, might be useful
     }
 
+    /**
+     * Adds instruction of a READ_ONLY type transaction to waiting queue
+     * @param instruction Instruction to add to the queue
+     * @param variableName variable for which the instruction is responsible
+     */
     public void addToWaitingRoQ(Instruction instruction, String variableName) {
         if (waitingInstructions.contains(instruction)) {
             return;
@@ -112,12 +134,13 @@ public class TransactionManager {
         currentWaitQ.add(instruction);
         waitingInstructions.add(instruction);
         this.ROInstructionsWaitingForVariable.put(variableName, currentWaitQ);
-//        this.instructionsWaitingForVariable.put(variableName, currentWaitQ); Update txnsWaitingForVariablSet, might be useful
     }
 
 
-    //returns true if all waiting instructions have finished
-    //false if some instructions are still left
+    /**
+     * @return true if all waiting instructions have finished
+     *          false if some instructions are still left
+     */
     public Boolean tryWaitingInstructions() {
         tryReadWriteInstructions();
         tryReadOnlyInstructions();
@@ -125,9 +148,13 @@ public class TransactionManager {
         return this.waitingInstructions.size() == 0;
     }
 
+    /**
+     * Retry for instructions form read-write queue
+     * Runs for each of the variable in the waitQ
+     * If one instruction runs, it's removed from the Q and the next instruction is tried till an execution doesn't go through
+     */
     private void tryReadWriteInstructions() {
         for (Map.Entry<String, Queue<Instruction>> entry : this.instructionsWaitingForVariable.entrySet()) {
-//            String variableName = entry.getKey();
             Instruction instruction;
             while(entry.getValue().peek() != null) {
                 instruction = entry.getValue().peek();
@@ -142,6 +169,10 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Retry for instructions form read-write queue
+     * Runs for all of the waiting Read-Only instructions waiting in the Q
+     */
     private void tryReadOnlyInstructions() {
         for (Map.Entry<String, Set<Instruction>> entry : this.ROInstructionsWaitingForVariable.entrySet()) {
 //            String variableName = entry.getKey();

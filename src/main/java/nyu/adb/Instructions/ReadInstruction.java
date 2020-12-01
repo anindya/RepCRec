@@ -28,7 +28,7 @@ public class ReadInstruction extends Instruction{
         if(transaction.getLocalCache().containsKey(variableName)) {
             log.info("{} read variable {} from local cache of transaction {}", LOG_TAG, variableName, transaction.getTransactionName());
             this.readValue = transaction.getLocalCache().get(variableName);
-            transaction.cacheRead(variableName, instructionLine, this.readValue);
+            transaction.cacheRead(instructionLine, this.readValue);
             System.out.format("%s Local Cache read: %d\n", instructionLine, this.readValue);
             return true;
         }

@@ -106,7 +106,7 @@ public class LockTable {
                 if (dataItemLockTypeMap.get(dataItem).get(txn).get(LockType.WRITE.ordinal())) {
                     isWriteLockedMap.remove(dataItem);
                 }
-                log.info("Unlock variable : {}, txb : {}", dataItem.getName(), txn.getTransactionName());
+                log.info("Unlock variable : {}, transaction : {}", dataItem.getName(), txn.getTransactionName());
                 Map<Transaction, BitSet> lockMap = dataItemLockTypeMap.get(dataItem);
                 lockMap.remove(txn);
                 dataItemLockTypeMap.put(dataItem, lockMap);

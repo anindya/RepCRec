@@ -77,7 +77,7 @@ public class Transaction {
         for (Map.Entry<Integer, Integer> entry : executeResult.getSiteNumberAndUpTime().entrySet()) {
             Integer siteNumber = entry.getKey();
             siteAccessRecord.set(siteNumber);
-            log.error("Site locked : {}, variable : {}", siteNumber, variableName);
+            log.info("Site locked : {}, variable : {}", siteNumber, variableName);
             //If site was already accessed, this means we already have the earliest access time in the map.
             if (!siteEarliestUpTimeWhenAccessingIt.containsKey(siteNumber)) {
                 siteEarliestUpTimeWhenAccessingIt.put(siteNumber, entry.getValue());

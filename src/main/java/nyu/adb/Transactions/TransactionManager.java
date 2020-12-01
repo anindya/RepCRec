@@ -6,8 +6,6 @@ import nyu.adb.DeadlockManager.DFSYoungestAbort;
 import nyu.adb.DeadlockManager.DeadlockManager;
 import nyu.adb.DeadlockManager.DeadlockRecommendation;
 import nyu.adb.Instructions.Instruction;
-import nyu.adb.Locks.LockTable;
-import nyu.adb.Locks.LockType;
 import nyu.adb.Sites.SiteManager;
 
 import java.util.*;
@@ -19,9 +17,6 @@ Singleton class of txnManager, to be called by instructionManager
 public class TransactionManager {
     private static final String LOG_TAG = "TransactionManager";
     Map<String, Transaction> transactionList = new HashMap<>();
-//  Create a queue of transactions based on the age, when a transaction complete remove it from the queue.
-//    This is the abort queue to be used when in deadlock
-//    Stack<Transaction> transactionsAgeQueue
     private static  final TransactionManager transactionManagerInstance = new TransactionManager();
 
     public static TransactionManager getInstance() {
@@ -136,7 +131,7 @@ public class TransactionManager {
             Instruction instruction;
             while(entry.getValue().peek() != null) {
                 instruction = entry.getValue().peek();
-                log.error("Trying {} ", instruction.getInstructionLine());
+                log.info("Trying {} ", instruction.getInstructionLine());
                 if (instruction.getTransaction().getFinalStatus() != null || instruction.execute()) {{
                     waitingInstructions.remove(instruction);
                     entry.getValue().remove();
@@ -160,6 +155,4 @@ public class TransactionManager {
             entry.getValue().removeAll(removalSet);
         }
     }
-
-
 }

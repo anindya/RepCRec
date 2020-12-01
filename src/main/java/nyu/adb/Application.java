@@ -15,14 +15,13 @@ import java.io.PrintStream;
 public class Application {
 
     /*Usage
-        java Application.main() <inputFile> <stdIn>
+        java Application.main() <inputFile> <outputFIle>
     **/
 
     public static void main(String[] args) throws IOException{
 
-        if (args.length != 3) {
-            System.out.println("Usage : java Application.main() <inputFilePath> <stdIn = 0/1> <out-file>. \n" +
-                                "If stdIn = 1, put anything in inputFile.");
+        if (args.length != 2) {
+            System.out.println("Usage : java Application.main() <inputFilePath> <out-file>. ");
             return;
         }
 
@@ -33,21 +32,17 @@ public class Application {
         Tick tick = Tick.getInstance();
 
         String inputFileName = args[0];
-        boolean stdIn = args[1].equals('1');
-        String outputFile = args[2];
-        if (stdIn) {
-            ioUtils.setStdIn(true);
-            System.out.println("Please enter input, one line at a time.");
-        } else {
-            if (ioUtils.setAndOpenInputFile(inputFileName)) {
-               log.info("File {} open, starting execution.", inputFileName);
-            }
+        String outputFile = args[1];
+
+        if (ioUtils.setAndOpenInputFile(inputFileName)) {
+           log.info("File {} open, starting execution.", inputFileName);
         }
+
         PrintStream fileOut = new PrintStream(outputFile);
         PrintStream originalOut = System.out;
-//        PrintStream originalErr = System.err;
+
         System.setOut(fileOut);
-//        System.setErr(fileOut);
+
         run(transactionManager, tick);
 
         System.setOut(originalOut);
@@ -81,10 +76,9 @@ public class Application {
             tick.increaseTick();
         }
 
-        while (!transactionManager.tryWaitingInstructions()) {
+        if (!transactionManager.tryWaitingInstructions()) {
             log.info("Trying any remaining waiting instructions.");
+            System.out.format("Something went wrong. EOF was found before all waiting instructions ended. \n Please check input file and ensure end instructions come only if all waiting instructions are finished.");
         }
-
-        //TODO Check waiting instructions are finished or aborted at transactionManager.
     }
 }

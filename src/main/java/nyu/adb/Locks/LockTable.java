@@ -6,6 +6,10 @@ import nyu.adb.Transactions.Transaction;
 
 import java.util.*;
 
+/**
+ * LockTable class.
+ * Used by DataManagerImpl to manage locks on dataItems present on the site.
+ */
 @Slf4j
 public class LockTable {
     private static final String LOG_TAG = "LockTable";
@@ -22,6 +26,10 @@ public class LockTable {
         this.siteNumber = siteNumber;
     }
 
+    /**
+     * Resets lockTable data except the siteNumber.
+     * This takes place on recovery call for the Site.
+     */
     public void reset() {
         this.dataItemLockTypeMap = new HashMap<>();
         this.isWriteLockedMap = new HashSet<>();
@@ -84,6 +92,13 @@ public class LockTable {
         }
     }
 
+    /**
+     * Unlock a data item from a given transaction.
+     * If it is write locked, then update the writeLockedMap as well
+     * @param dataItem The dataitem to unlock from the transaction
+     * @param txn The transaction which on abort/commit is unlocking the dataItems
+     * @return true, assumes this doesn't go down between request processing.
+     */
     public Boolean unlockItem(DataItem dataItem, Transaction txn) {
         if (dataItemLockTypeMap.containsKey(dataItem)) {
             if (dataItemLockTypeMap.get(dataItem).containsKey(txn)) {
@@ -104,6 +119,10 @@ public class LockTable {
         return true;
     }
 
+    /**
+     *
+     * @return lockData stored by the locktable for different dataItems
+     */
     public Map<String, Map<Transaction, BitSet>> getLocksData() {
         Map<String, Map<Transaction, BitSet>> resultMap = new HashMap<>();
         dataItemLockTypeMap.entrySet().parallelStream().forEach( entry -> {

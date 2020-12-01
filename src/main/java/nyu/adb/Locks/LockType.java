@@ -4,6 +4,9 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
+/**
+ * Lock types supported by the database/datamanager.
+ */
 public enum LockType {
     READ("read"),
     WRITE("write");

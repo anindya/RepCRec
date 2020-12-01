@@ -58,7 +58,9 @@ public class Application {
         InstructionManager instructionManager = new InstructionManager();
         while(true) {
             //check for deadlock and clear any issues
-            transactionManager.checkAndAbortIfDeadlock();
+            while(transactionManager.checkAndAbortIfDeadlock()) {
+
+            };
 
             //look at all waiting instructions and see if something can be done for them
             transactionManager.tryWaitingInstructions();

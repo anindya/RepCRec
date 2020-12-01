@@ -4,6 +4,9 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
+/**
+ * Status of the locks for acquireLock requests
+ */
 public enum LockAcquiredStatus {
     IN_RECOVERY("in_recovery"),
     ACQUIRED("acquired"),

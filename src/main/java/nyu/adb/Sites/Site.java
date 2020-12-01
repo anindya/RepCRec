@@ -16,14 +16,12 @@ import java.util.Map;
 public class Site {
     private Integer siteNumber;
     private SiteStatus status;
-    private Integer lastDownTime; // when did the site go down, 0 if never. comes from Tick.getValue()
-    private Integer upSince; //updated on recovery. set to -1 when down.
+    private Integer upSince; //updated on recovery.
     private DataManagerImpl dataManagerImpl;
 
     public Site(Integer siteNumber) {
         this.siteNumber = siteNumber;
         this.status = SiteStatus.UP;
-        this.lastDownTime = 0;
         this.dataManagerImpl = new DataManagerImpl(siteNumber);
         this.upSince = 0;
     }
@@ -36,27 +34,11 @@ public class Site {
         dataManagerImpl.unlockItemForTransaction(variableName, txn);
     }
 
-    //DataItems
-//    public Boolean fail() {
-//        this.status = SiteStatus.DOWN;
-//        this.upSince = -1;
-////        dataManagerImpl.fail();
-//        return true;
-//    }
-
     public Boolean recover() {
         this.status = SiteStatus.IN_RECOVERY;
         this.upSince = Tick.getInstance().getTime();
         this.dataManagerImpl.startRecovery();
         return true;
-    }
-
-    //Return values of all the data items and status, etc.
-    public String getDump() {
-        StringBuilder sb = new StringBuilder();
-
-
-        return sb.toString();
     }
 
     public Boolean addDataItem(String name, Integer value, boolean isReplicated) {

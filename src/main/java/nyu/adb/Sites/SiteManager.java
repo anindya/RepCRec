@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import nyu.adb.DataManager.DataItem;
 import nyu.adb.Instructions.ExecuteResult;
 import nyu.adb.Locks.LockAcquiredStatus;
-import nyu.adb.Locks.LockTable;
 import nyu.adb.Locks.LockType;
 import nyu.adb.Tick;
 import nyu.adb.Transactions.Transaction;
@@ -13,6 +12,11 @@ import nyu.adb.constants;
 
 import java.util.*;
 
+/**
+ * The central class that talks to sites and gets request from instructions and transactionManger.
+ * Acts as proxy line between sites and the outside world.
+ * Is a singleton class. Assumption, this never fails.
+ */
 @Slf4j
 public class SiteManager {
     private static final String LOG_TAG = "SiteManager";
@@ -22,6 +26,7 @@ public class SiteManager {
     Map<Site, List<Integer>> siteDownTimeList;
 
     //Complete map which contains list of where the corresponding variable exists.
+    //This can be replaced with a Hash function if the number of dataitems is large.
     Map<String, List<Site>> variableLocations;
 
     public static SiteManager getInstance() {

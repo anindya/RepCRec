@@ -35,16 +35,12 @@ public class TransactionManager {
     Set<Instruction> waitingInstructions;
     //Set of transactions waiting for variable
     Map<String, Set<Transaction>> txnsWaitingForVariable;
-    Map<String, Set<Transaction>> readLocksHeldByTxn; //TODO Think more on this and its use.
-    Map<String, Transaction> writeLockHeldByTxn;
 
     private TransactionManager() {
         this.transactionList = new HashMap<>();
         this.instructionsWaitingForVariable = new HashMap<>();
         this.ROInstructionsWaitingForVariable = new HashMap<>();
         this.txnsWaitingForVariable = new HashMap<>();
-        this.readLocksHeldByTxn = new HashMap<>();
-        this.writeLockHeldByTxn = new HashMap<>();
         this.waitingInstructions = new HashSet<>();
     }
 
@@ -95,17 +91,6 @@ public class TransactionManager {
         } else {
             log.error("{} incorrect transaction name in instruction, transactionName : {}", LOG_TAG, transactionName);
             return null; //TODO Change to error if time permits.
-        }
-    }
-
-    public void newLocksAcquired(Transaction transaction, String variableName, LockType lockType) {
-        Set<Transaction> currentSet;
-        if (lockType.equals(LockType.READ)) {
-            currentSet = readLocksHeldByTxn.containsKey(variableName) ? readLocksHeldByTxn.get(variableName) : new HashSet<>();
-            currentSet.add(transaction);
-            readLocksHeldByTxn.put(variableName, currentSet);
-        } else if (lockType.equals(LockType.WRITE)) {
-            writeLockHeldByTxn.put(variableName, transaction);
         }
     }
 

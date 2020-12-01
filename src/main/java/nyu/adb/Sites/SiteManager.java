@@ -95,6 +95,17 @@ public class SiteManager {
         return sb.toString();
     }
 
+    /**
+     * Acquires a read lock from one of the sites where the variable is present
+     * And then read the corresponding value with site details.
+     * @param variableName : dataItem name that is to be read by a read-write transaction
+     * @param txn : read-write type transaction
+     * @return ExecuteResult type object which contains site information from which(if) the variable is read and the read value.
+     * return LockAcquiredStatus = ALL_DOWN if all sites containing a variable are down
+     * else returns LockAcquiredStatus = WAITING
+     *
+     * returns null if variable is not present at any site
+     */
     public ExecuteResult readVariable(String variableName, Transaction txn) {
         if (!variableLocations.containsKey(variableName)) {
             log.error("{} : invalid variable read, variableName = {}", LOG_TAG, variableName);
@@ -125,6 +136,16 @@ public class SiteManager {
         return new ExecuteResult(null, null, Tick.getInstance().getTime(), LockAcquiredStatus.WAITING); //TODO Change this.
     }
 
+    /**
+     * function to acquire lock at all available sites for the given data item
+     * @param variableName : dataItem name that is to be written by a read-write transaction
+     * @param txn : read-write type transaction
+     * @return ExecuteResult type object which contains site information from which(if) the variable is read and the read value.
+     * return LockAcquiredStatus = ALL_DOWN if all sites containing a variable are down
+     * else returns LockAcquiredStatus = WAITING having acquired some of the locks. This might lead to a deadlock down the line but
+     * aggressive deadlock abortion is done and ensures that transactions go through anyway.
+     * returns null if variable is not present at any site
+     */
     public ExecuteResult writeVariableLock(String variableName, Transaction txn) {
         if (!variableLocations.containsKey(variableName)) {
             log.error("{} : invalid variable read, variableName = {}", LOG_TAG, variableName);
@@ -164,6 +185,16 @@ public class SiteManager {
         }
     }
 
+    /**
+     * Reads a particular version of the dataItem based on the transaction start time
+     * @param variableName : dataItem name that is to be read by a read-only transaction
+     * @param transaction : read-only type transaction
+     * @return if all sites are down, sends the ExecuteResult.LockAcquiredStatus = WAITING
+     * if all sites are up but none have the correct version committed based on time of start of read-only transaction,
+     *              then ExecuteResult.LockAcquiredStatus = ALL_DOWN_FOR_RO, leads to aggressive abort of read-only transaction
+     * returns value under ExecuteResult if some site has the relevant information
+     * if some sites are down and the information is not present at any of the up sites, ExecuteResult.LockAcquiredStatus = WAITING is returned
+     */
     public ExecuteResult readVariableVersion(String variableName, Transaction transaction) {
         List<Site> siteList = variableLocations.get(variableName);
 
@@ -213,9 +244,18 @@ public class SiteManager {
         return getSiteFromNumber(siteNumber).getUpSince();
     }
 
-    //Cleanup at all sites that are up and were accessed by this transaction.
-    // This can run in parallel because for each variable a site can be hit exactly once.
-    // Consider consolidating updates for a site and sending them in a batch if time permits.
+
+    //TODO Consider consolidating updates for a site and sending them in a batch
+    /**
+     * Cleanup at all sites that are up and were accessed by this transaction.
+     * Goes to each site which was accessed by the transaction and unlocks the dataItems. Writes any new value, if required, before unlocking
+     * This can run in parallel because for each variable a site can be hit exactly once.
+     * @param variableName the dataItem name to be unlocked by the transaction
+     * @param siteNumberSet A bitset of the site numbers accessed by the transaction for the variable in question
+     * @param newValue the new value of the variable that is being written (used only if isWrite = true)
+     * @param transaction transaction that is being committed/aborted
+     * @param isWrite : flag to allow write when cleaning up
+     */
     public void cleanUpAtSites(String variableName, BitSet siteNumberSet, Integer newValue, Transaction transaction, Boolean isWrite) {
         siteNumberSet.stream().forEach(siteNumber -> {
             Site site = getSiteFromNumber(siteNumber);
@@ -230,6 +270,10 @@ public class SiteManager {
         });
     }
 
+    /**
+     * Cleanup at all sites that are up and were accessed by this transaction.
+     * Uses the function cleanUpAtSites with isWrite set to false because ABORT is taking place
+     */
     public void cleanUpAtSitesAbort(Transaction transaction) {
         for (String variableName : transaction.getLocalCache().keySet()) {
             cleanUpAtSites(variableName, transaction.getSitesAccessedForVariable().get(variableName),
@@ -239,6 +283,12 @@ public class SiteManager {
         transaction.setFinalStatus(TransactionStatus.ABORT);
     }
 
+    /**
+     * Used to fail a given site,
+     * the only update made is at the siteManager because the site would not know that it has failed.
+     * @param siteNumber the site that is going to fail
+     * @return true. Assumption : siteManager never fails and is a singleton so no one else can fail the Site
+     */
     public Boolean failSite(Integer siteNumber) {
         if (!siteList.containsKey(siteNumber)) {
             log.error("{} Invalid siteNumber {} for fail operation", LOG_TAG, siteNumber);
@@ -252,6 +302,12 @@ public class SiteManager {
         return true;
     }
 
+    /**
+     * Used to recover a given site,
+     * SiteManager updates it's own records and lets the site know that it needs to reset it's LockTable.
+     * @param siteNumber the site that is going to fail
+     * @return true. Assumption : siteManager never fails and is a singleton so no one else can fail the Site
+     */
     public Boolean startRecovery(Integer siteNumber) {
         if (!siteList.containsKey(siteNumber)) {
             log.error("{} Invalid siteNumber {} for recovery operation", LOG_TAG, siteNumber);
@@ -262,6 +318,10 @@ public class SiteManager {
         return true;
     }
 
+    /**
+     * Utility function for deadlock detection
+     * @return a list of each sites lock table
+     */
     public List<Map<String, Map<Transaction, BitSet>>> getAllLockTables() {
         List<Map<String, Map<Transaction, BitSet>>> lockTablesData = new ArrayList<>();
         siteList.values().forEach(site -> {

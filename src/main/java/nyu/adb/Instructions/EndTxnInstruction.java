@@ -23,20 +23,12 @@ public class EndTxnInstruction extends Instruction{
 
     @Override
     public Boolean execute() {
-//        Map<Integer, Set<String>> sitesAccessed = this.transaction.getSitesAccessed();
-//        for (Map.Entry<Integer, Set<String>> entry : sitesAccessed.entrySet()) {
-//            //commit values and clear all locks. First commit or decide if abort in case some site went down from where access was done.
-//        }
         if (this.transaction.getTransactionType().equals(TransactionType.READ_ONLY)) {
             System.out.format("%s commits\n", this.transaction.getTransactionName());
             this.transaction.setFinalStatus(TransactionStatus.COMMIT);
             return true;
         }
         if (checkAllAccessedSitesUpSinceFirstAccess()) {
-//            for (String variableName : this.transaction.getDirtyBit()) {
-//                siteManager.writeToSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
-//                        this.transaction.getLocalCache().get(variableName), this.transaction);
-//            }
 
             for (String variableName : this.transaction.getLocalCache().keySet()) {
                 siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
@@ -46,12 +38,6 @@ public class EndTxnInstruction extends Instruction{
             this.transaction.setFinalStatus(TransactionStatus.COMMIT);
         } else {
             siteManager.cleanUpAtSitesAbort(this.transaction);
-//            for (String variableName : this.transaction.getLocalCache().keySet()) {
-//                siteManager.cleanUpAtSites(variableName, this.transaction.getSitesAccessedForVariable().get(variableName),
-//                        this.transaction.getLocalCache().get(variableName), this.transaction, false);
-//            }
-//            System.out.format("%s aborts.\n", this.transaction.getTransactionName());
-//            this.transaction.setFinalStatus(TransactionStatus.ABORT);
         }
         return true;
     }

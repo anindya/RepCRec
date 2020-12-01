@@ -1,3 +1,4 @@
+//Test20
 begin(T10)
 begin(T3)
 begin(T5)
@@ -19,6 +20,8 @@ R(T8, x8)
 R(T9, x9)
 R(T10, x10)
 W(T1, x2, 12)
+
+
 R(T10, x9)
 R(T3, x1)
 R(T8, x6)

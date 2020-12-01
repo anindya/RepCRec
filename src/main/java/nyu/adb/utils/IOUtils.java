@@ -22,7 +22,11 @@ public class IOUtils {
 
     }
 
-// Read input file supplied from main and return instructions one at a time.
+    /**
+     * reads next line from input file and returns next line
+     * @return valid nextLine instruction
+     * @throws IOException
+     */
     public String getNextLine() throws IOException{
         String nextLine;
 
@@ -31,7 +35,7 @@ public class IOUtils {
         }
         try {
             nextLine = this.bufferedReader.readLine();
-            while(nextLine != null && StringUtils.isBlank(nextLine)) {
+            while(nextLine != null && (StringUtils.isBlank(nextLine) || nextLine.startsWith("/"))) {
                 nextLine = this.bufferedReader.readLine();
             }
         } catch (IOException e) {
@@ -46,7 +50,7 @@ public class IOUtils {
     /**
      *
      * @param fileName path of instructions file to open
-     * @return true if the inputFile being set is found and opened as a fileInputStream
+     * @return true if the inputFile being set is found and opened as a bufferedReader
      */
     public boolean setAndOpenInputFile(String fileName) {
         log.info("{} : Opening input file = {} ", LOG_TAG, fileName);

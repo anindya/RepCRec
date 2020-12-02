@@ -1,3 +1,5 @@
+//Authors : Anindya Chakravarti, Rohan Mahadev
+
 package nyu.adb.DeadlockManager;
 
 import nyu.adb.Instructions.Instruction;

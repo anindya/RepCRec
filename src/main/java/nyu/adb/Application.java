@@ -14,10 +14,11 @@ import java.io.PrintStream;
 @Slf4j
 public class Application {
 
-    /*Usage
-        java Application.main() <inputFile> <outputFIle>
-    **/
-
+    /**
+     * java -jar <jarName> <inputFile> <outputFIle>
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException{
 
         if (args.length != 2) {
@@ -54,7 +55,6 @@ public class Application {
         while(true) {
             //check for deadlock and clear any issues
             while(transactionManager.checkAndAbortIfDeadlock()) {
-
             };
 
             //look at all waiting instructions and see if something can be done for them

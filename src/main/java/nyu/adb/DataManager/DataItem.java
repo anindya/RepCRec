@@ -11,6 +11,9 @@ import java.util.Comparator;
 import java.util.List;
 
 @Slf4j @Getter
+/**
+ * Representation of an individual dataItem on a site managed by the DataManagerImpl
+ */
 public class DataItem {
 
     private final String name;
@@ -30,11 +33,18 @@ public class DataItem {
     }
 
     @AllArgsConstructor @Getter
+    /**
+     * The historical values of the dataItem maintained by the individual dataItem itself
+     * contains the value and their time of write (commitTime).
+     */
     public class VersionedDataItem {
         private Integer value;
         private Integer commitTime;
     }
 
+    /**
+     * Compares two {@link VersionedDataItem} based on their commitTimes
+     */
     private class VersionedDataItemComparator implements Comparator<VersionedDataItem> {
 
         public int compare (VersionedDataItem dataItem1, VersionedDataItem dataItem2) {
@@ -47,6 +57,11 @@ public class DataItem {
         }
     }
 
+    /**
+     *
+     * @param time the time for which the committed value is requested
+     * @return the version of the dataItem that was committed within the site before the t=time and closest to it.
+     */
     public VersionedDataItem getValue(Integer time) {
         Integer index = Collections.binarySearch(versionedDataItems, new VersionedDataItem(0, time), new VersionedDataItemComparator());
         //TODO test this for sanity.
@@ -58,7 +73,11 @@ public class DataItem {
         }
     }
 
-    //TODO do we need to check lock status here?
+    /**
+     * Writes value and creates a version of the dataItem based on current time
+     * @param value
+     * @return true.
+     */
     public boolean writeValue(Integer value) {
         this.value = value;
         versionedDataItems.add(new VersionedDataItem(value, Tick.getInstance().getTime()));

@@ -34,7 +34,8 @@ public class ReadInstruction extends Instruction{
         }
         if (transaction.getTransactionType().equals(TransactionType.READ_WRITE)) {
             ExecuteResult executeResult = siteManager.readVariable(variableName, transaction);
-            if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.WAITING)) {
+            if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.WAITING) ||
+                    executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.ALL_DOWN)) {
                 transactionManager.addToWaitingQ(this, variableName);
             } else if (executeResult.getLockAcquiredStatus().equals(LockAcquiredStatus.IN_RECOVERY)) {
                 transactionManager.addToWaitingQ(this, variableName);
